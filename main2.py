@@ -1,8 +1,3 @@
-# Perspective Projection (1)
-# Movable Camera (2)
-# Shading (2)
-# Images (0)
-
 import numpy as np
 import scipy.misc as spm
 import time
@@ -12,11 +7,12 @@ import sys
 import copy
 from abc import abstractmethod
 
+# Taken from stack overflow (https://stackoverflow.com/questions/21030391/how-to-normalize-an-array-in-numpy)
 def normalize(v):
-    norm=np.linalg.norm(v, ord=1)
-    if norm==0:
-        norm=np.finfo(v.dtype).eps
-    return v/norm
+    norm = np.linalg.norm(v, ord=1)
+    if norm == 0:
+        norm = np.finfo(v.dtype).eps
+    return v / norm
 
 class Ray:
     def __init__(self, origin, direction):
@@ -26,6 +22,12 @@ class Ray:
 class GeometricObject:
     @abstractmethod
     def hit(self, ray, sr):
+        # SIDE EFFECT: updates sr (hit_an_object, normal, local_hit_point)
+        # returns (bool a_hit, float t_at_hit)"""
+        pass
+
+    @abstractmethod
+    def get_normal(self, point):
         pass
 
 class Plane(GeometricObject):
@@ -33,11 +35,10 @@ class Plane(GeometricObject):
         self.point = point
         self.normal = normal
         self.color = color
+
         self.k_epsilon = 10**-6
 
     def hit(self, ray, sr):
-        """Alters sr
-        Returns (whether hit, tmin)"""
         t = np.dot(self.point - ray.origin, self.normal) / np.dot(ray.direction, self.normal)
         if (t > self.k_epsilon):
             sr.normal = self.normal
@@ -45,6 +46,9 @@ class Plane(GeometricObject):
             return True, t
         else:
             return False, t
+
+    def get_normal(self, point):
+        return self.normal
 
 class Triangle(GeometricObject):
     def __init__(self, p1, p2, p3, color):
@@ -72,6 +76,9 @@ class Triangle(GeometricObject):
                 sr.local_hit_point = ray.origin + t*ray.direction
                 return True, t
         return False, t
+
+    def get_normal(self, point):
+        return self.normal
 
 class Sphere(GeometricObject):
     def __init__(self, center, radius, color):
@@ -108,13 +115,20 @@ class Sphere(GeometricObject):
                 return True, t
         return False, None
 
+    def get_normal(self, point):
+        normal = point - self.center
+        normal = normalize(normal)
+        return normal
+
 class ShadeRec:
     def __init__(self, world):
+        self.world = world
+
         self.hit_an_object = False
         self.local_hit_point = None
         self.normal = None
         self.color = RGBColor.black
-        self.world = world
+        
 
 class RGBColor:
     clear = np.array([0,0,0,0])
@@ -135,36 +149,13 @@ class World:
         self.background_color = None
         self.objects = None
         self.tracer = None
-        self.eye = None
-        self.view_distance = None
+        self.camera = None
+        self.light = None
         
 
     def build(self):
-        """
-        # Green Plane
-        self.view_plane = ViewPlane(200, 200, 1.0, 1.0)
-        self.background_color = RGBColor.black
-        self.objects = Plane(np.array([0,0,0]), np.array([0,1,1]))
-        self.tracer = GreenScreenTracer()
-        """
-
-        """
-        # Single Sphere
-        self.view_plane = ViewPlane(500, 500, 1.0, 1.0)
-        self.background_color = RGBColor.black
-        self.objects = Sphere(np.array([0,0,0]), 160)
-        self.tracer = SingleSphereTracer(self)
-        """
-
-        
-        # For posterity
-        # Multiple Spheres
-        #sampler = Jittered(9)
-        #sampler = NRooks(9)
         sampler = MultiJittered(9)
         self.view_plane = ViewPlane(60, 60, 2.0, 1.0, sampler)
-        self.eye = np.array(500)
-        self.view_distance = 200
         self.background_color = RGBColor.black
         self.objects = [Sphere(np.array([-45, 45, 40]), 50, RGBColor.yellow), 
                         Sphere(np.array([0,30,0]), 15, RGBColor.red),
@@ -172,15 +163,15 @@ class World:
                         #Plane(np.array([0,0,0]), np.array([0,5,1]), RGBColor.green),
         self.tracer = MultipleObjectsTracer(self)
         
-
-        """
-        eye = np.array([300, 400, 500])
+        eye = np.array([-1100, 400, 500])
         up = np.array([0,1,0])
         lookat = np.array([0, 0, -50])
         exposure_time = 1.0
-        view_distance = 400
-        camera = Pinhole(eye, up, lookat, exposure_time, view_distance)
-        """
+        zoom = 1
+        self.view_distance = 400
+        self.camera = Orthographic(eye, up, lookat, exposure_time, zoom)
+        self.camera = Pinhole(eye, up, lookat, exposure_time, zoom)
+        self.light = np.array([-100,-100,100])
         
         
     def render_scene(self):
@@ -230,19 +221,6 @@ class World:
         spm.imsave('out_img.png', png)
 
 
-        """
-        # No extra sampling
-        for r in range(0, self.view_plane.vres):
-            for c in range(0, self.view_plane.hres):
-                x = self.view_plane.pixel_size * (c - 0.5 * (self.view_plane.hres - 1.0))
-                y = self.view_plane.pixel_size * (r - 0.5 * (self.view_plane.vres - 1.0))
-                ray.origin = np.array([x, y, zw])
-                pixel_color = self.tracer.trace_ray(ray)
-                png[r, c] = pixel_color
-        
-        spm.imsave('out_img.png', png)
-        """
-
     def hit_bare_bones_objects(self, ray):
         sr = ShadeRec(self)
         tmin = 10.0**10
@@ -254,7 +232,15 @@ class World:
             if(hit and t < tmin):
                 sr.hit_an_object = True
                 tmin = t
-                sr.color = self.objects[i].color
+                               
+                shader = NoShader()
+                point = ray.origin + t * ray.direction
+                light = self.light
+                k = 1
+                L = normalize(light - point)
+                N = normalize(self.objects[i].get_normal(point))
+                i = self.objects[i].color
+                sr.color = shader.shade(k, L, N, i)
 
         return sr
 
@@ -280,11 +266,7 @@ class ViewPlane:
 
 class Tracer:
     def trace_ray(self, ray):
-        return RGBColor.black
-
-class GreenScreenTracer(Tracer):
-    def trace_ray(self, ray):
-        return RGBColor.green
+        return RGBColor.clear
 
 class SingleSphereTracer(Tracer):
     def __init__(self, world):
@@ -463,8 +445,30 @@ class Camera:
         pass
 
 class Orthographic(Camera):
-    def render_scene(self):
-        pass
+    def render_scene(self, world):
+        pixel_color = RGBColor.clear
+        view_plane = copy.deepcopy(world.view_plane)
+        zw = 100
+        ray = Ray(np.array([0,0,0]), np.array([0,0,-1]))
+        num_samples = view_plane.num_samples
+        view_plane.pixel_size = view_plane.pixel_size / self.zoom
+        png = np.array([[RGBColor.clear for i in range(0,view_plane.vres)] for j in range(0,world.view_plane.hres)])
+        
+        for r in range(0, view_plane.vres):
+            for c in range(0, view_plane.hres):
+
+                pixel_color = RGBColor.clear
+                for j in range(0, num_samples):
+                    sp = view_plane.sampler.sample_unit_square()
+                    x = view_plane.pixel_size * (c - 0.5 * view_plane.hres + sp[0])
+                    y = view_plane.pixel_size * (r - 0.5 * view_plane.vres + sp[1])
+                    pp = np.array([x,y])
+                    ray.origin = np.array([x,y,zw])
+                    pixel_color = pixel_color + world.tracer.trace_ray(ray)
+                pixel_color = pixel_color / num_samples
+                pixel_color = pixel_color * self.exposure_time
+                png[r, c] = pixel_color
+        spm.imsave('out_img.png', png)
 
 class Pinhole(Camera):
     def render_scene(self, world):
@@ -472,7 +476,7 @@ class Pinhole(Camera):
         view_plane = copy.deepcopy(world.view_plane)
         ray = Ray(self.eye, np.array([0,0,-1]))
         num_samples = world.view_plane.num_samples
-        view_plane = view_plane / self.zoom
+        view_plane.pixel_size = view_plane.pixel_size / self.zoom
         png = np.array([[RGBColor.clear for i in range(0,world.view_plane.vres)] for j in range(0,world.view_plane.hres)])
         
         for r in range(0, view_plane.vres):
@@ -483,26 +487,42 @@ class Pinhole(Camera):
                     x = view_plane.pixel_size * (c - 0.5 * view_plane.hres + sp[0])
                     y = view_plane.pixel_size * (r - 0.5 * view_plane.vres + sp[1])
                     pp = np.array([x,y])
-                    ray.direction = self.ray_direction(pp)
-                    pixel_color = pixel_color + world.tracer.trace_ray(ray, world.view_distance)
+                    ray.direction = self.ray_direction(pp, world.view_distance)
+                    pixel_color = pixel_color + world.tracer.trace_ray(ray)
                 pixel_color = pixel_color / num_samples
                 pixel_color = pixel_color * self.exposure_time
                 png[r, c] = pixel_color
         spm.imsave('out_img.png', png)
 
     def ray_direction(self, p, d):
-        dir = p[0] * self.u + p[1] * self.v - d * self.w
-        dir = normalize(dir)
-        return dir
+        direction = p[0] * self.u + p[1] * self.v - d * self.w
+        direction = normalize(direction)
+        return direction
 
-    def ray_direction(self, p):
+
+class Shader:
+    @abstractmethod
+    def shade(self, k, L, N, i):
         pass
+
+class NoShader(Shader):
+    def shade(self, k, L, N, i):
+        return i
+
+class DiffusePhongShader:
+    def shade(self, k, L, N, i):
+        diffuse = i * k * np.max([0, np.dot(L, N)])
+        # Make alpha same
+        diffuse[3] = i[3]
+        # print("i: ", i, "diffuse: ", diffuse)
+        return diffuse
 
 #================= Run ray tracer ======================
 start_time = time.time()
 w = World()
 w.build()
 #w.render_scene()
-w.render_perspective()
+#w.render_perspective()
+w.camera.render_scene(w)
 end_time = time.time()
 print(end_time - start_time)
