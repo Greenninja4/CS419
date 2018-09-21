@@ -22,7 +22,7 @@ class Ray:
 class GeometricObject:
     @abstractmethod
     def hit(self, ray, sr):
-        # SIDE EFFECT: updates sr (hit_an_object, normal, local_hit_point)
+        # SIDE EFFECT: updates sr (normal, local_hit_point)
         # returns (bool a_hit, float t_at_hit)"""
         pass
 
@@ -33,7 +33,7 @@ class GeometricObject:
 class Plane(GeometricObject):
     def __init__(self, point, normal, color):
         self.point = point
-        self.normal = normal
+        self.normal = normalize(normal)
         self.color = color
 
         self.k_epsilon = 10**-6
@@ -55,25 +55,26 @@ class Triangle(GeometricObject):
         self.p1 = p1
         self.p2 = p2
         self.p3 = p3
-        self.normal = np.cross(p1-p2, p1-p3)
         self.color = color
+
+        self.normal = normalize(np.cross(p1-p2, p1-p3))
         self.k_epsilon = 10**-6
 
     def hit(self, ray, sr):
-        """Alters sr
-        Returns (whether hit, tmin)"""
         t = np.dot(self.p1 - ray.origin, self.normal) / np.dot(ray.direction, self.normal)
         # Hits plane
         if (t > self.k_epsilon):
-            point = ray.origin + t * ray.direction
+            # Calculate barycentric coordinates
+            hit_point = ray.origin + t * ray.direction
             temp = np.dot(np.cross(self.p2-self.p1, self.p3-self.p1), self.normal)
-            b1 = np.dot(np.cross(self.p3-self.p2, point-self.p2), self.normal) / temp
-            b2 = np.dot(np.cross(self.p1-self.p3, point-self.p3), self.normal) / temp
-            b3 = np.dot(np.cross(self.p2-self.p1, point-self.p1), self.normal) / temp
+            b1 = np.dot(np.cross(self.p3-self.p2, hit_point-self.p2), self.normal) / temp
+            b2 = np.dot(np.cross(self.p1-self.p3, hit_point-self.p3), self.normal) / temp
+            #b3 = np.dot(np.cross(self.p2-self.p1, hit_point-self.p1), self.normal) / temp
+            b3 = 1 - b1 - b2
             # Hits triangle
             if (0 < b1 and b1 < 1 and 0 < b2 and b2 < 1 and 0 < b3 and b3 < 1):
                 sr.normal = self.normal
-                sr.local_hit_point = ray.origin + t*ray.direction
+                sr.local_hit_point = hit_point
                 return True, t
         return False, t
 
@@ -85,11 +86,10 @@ class Sphere(GeometricObject):
         self.center = center
         self.radius = radius
         self.color = color
+
         self.k_epsilon = 10**-6
 
     def hit(self, ray, sr):
-        """Alters sr
-        Returns (whether hit, tmin)"""
         temp = ray.origin - self.center
         a = np.dot(ray.direction, ray.direction)
         b = 2.0 * np.dot(temp, ray.direction)
@@ -97,9 +97,10 @@ class Sphere(GeometricObject):
         disc = b * b - 4.0 * a * c
 
         if(disc < 0.0):
+            # TODO: Should None be -1?
             return False, None
         else: 
-            e = disc**0.5
+            e = np.sqrt(disc)
             denom = 2.0 * a
             # Smaller root
             t = (-b - e) / denom
@@ -113,6 +114,7 @@ class Sphere(GeometricObject):
                 sr.normal = (temp + t * ray.direction) / self.radius
                 sr.local_hit_point = ray.origin + t * ray.direction
                 return True, t
+        # TODO: Should None be -1?
         return False, None
 
     def get_normal(self, point):
@@ -127,10 +129,10 @@ class ShadeRec:
         self.hit_an_object = False
         self.local_hit_point = None
         self.normal = None
-        self.color = RGBColor.black
-        
+        self.color = RGBColor.clear
 
 class RGBColor:
+    # Common colors
     clear = np.array([0,0,0,0])
     black = np.array([0,0,0,255])
     white = np.array([255,255,255,255])
@@ -140,6 +142,8 @@ class RGBColor:
     cyan = np.array([0,255,255,255])
     magenta = np.array([255,0,255,255])
     yellow = np.array([255,255,0,255])
+
+    # TODO: standardize interface with common colors
     def __init__(self, r, b, g, a):
         self.rgba = np.array([r,g,b,a])
 
@@ -150,98 +154,56 @@ class World:
         self.objects = None
         self.tracer = None
         self.camera = None
+        # TODO: Make multiple lights
         self.light = None
+        self.shader = None
         
-
     def build(self):
-        sampler = MultiJittered(9)
-        self.view_plane = ViewPlane(60, 60, 2.0, 1.0, sampler)
+        sampler = SingleSample(1)
+        #sampler = MultiJittered(9)
+        self.view_plane = ViewPlane(100, 100, 1.0, 1.0, sampler)
         self.background_color = RGBColor.black
         self.objects = [Sphere(np.array([-45, 45, 40]), 50, RGBColor.yellow), 
-                        Sphere(np.array([0,30,0]), 15, RGBColor.red),
-                        Triangle(np.array([-110, -85, 80]), np.array([120, 10, 20]), np.array([-40, 50, -30]), RGBColor.blue)]
-                        #Plane(np.array([0,0,0]), np.array([0,5,1]), RGBColor.green),
+                        Sphere(np.array([45, 45, 20]), 30, RGBColor.red),
+                        Triangle(np.array([-110, -85, 80]), np.array([120, 10, 20]), np.array([-40, 50, -30]), RGBColor.blue),
+                        Triangle(np.array([-10, -8, 80]), np.array([-120, 130, 20]), np.array([-400, 50, 30]), RGBColor.green)]
         self.tracer = MultipleObjectsTracer(self)
         
-        eye = np.array([-1100, 400, 500])
+        # Camera
+        eye = np.array([0, 0, 500])
+        #eye = np.array([-300, -300, 800])
         up = np.array([0,1,0])
-        lookat = np.array([0, 0, -50])
+        lookat = np.array([0, 0, 0])
         exposure_time = 1.0
-        zoom = 1
-        self.view_distance = 400
-        self.camera = Orthographic(eye, up, lookat, exposure_time, zoom)
-        self.camera = Pinhole(eye, up, lookat, exposure_time, zoom)
-        self.light = np.array([-100,-100,100])
-        
-        
-    def render_scene(self):
-        zw = 100
-        ray = Ray(np.array([0,0,0]), np.array([0,0,-1]))
-        png = np.array([[RGBColor.clear for i in range(0,self.view_plane.vres)] for j in range(0,self.view_plane.hres)])
-        num_samples = self.view_plane.num_samples
+        zoom = .333
+        view_distance = 500
+        #self.camera = Orthographic(eye, up, lookat, exposure_time, zoom, view_distance)
+        self.camera = Pinhole(eye, up, lookat, exposure_time, zoom, view_distance)
 
-        # For each pixel
-        for r in range(0, self.view_plane.vres):
-            for c in range(0, self.view_plane.hres):
-
-                # Sample num_samples times
-                pixel_color = RGBColor.clear
-                for j in range(0, num_samples):
-                    sp = self.view_plane.sampler.sample_unit_square()
-                    x = self.view_plane.pixel_size * (c - 0.5 * self.view_plane.hres + sp[0])
-                    y = self.view_plane.pixel_size * (r - 0.5 * self.view_plane.vres + sp[1])
-                    ray.origin = np.array([x, y, zw])
-                    pixel_color = pixel_color + self.tracer.trace_ray(ray)
-                png[r, c] = pixel_color / num_samples
-        
-        # Save to png
-        spm.imsave('out_img.png', png)
-
-    def render_perspective(self):
-        ray = Ray(np.array([0,0,self.eye]), np.array([0,0,-1]))
-        png = np.array([[RGBColor.clear for i in range(0,self.view_plane.vres)] for j in range(0,self.view_plane.hres)])
-        num_samples = self.view_plane.num_samples
-
-        # For each pixel
-        for r in range(0, self.view_plane.vres):
-            for c in range(0, self.view_plane.hres):
-
-                # Sample num_samples times
-                pixel_color = RGBColor.clear
-                for j in range(0, num_samples):
-                    sp = self.view_plane.sampler.sample_unit_square()
-                    x = self.view_plane.pixel_size * (c - 0.5 * self.view_plane.hres + sp[0])
-                    y = self.view_plane.pixel_size * (r - 0.5 * self.view_plane.vres + sp[1])
-                    ray.direction = np.array([x, y, -self.view_distance])
-                    ray.direction = normalize(ray.direction)
-                    pixel_color = pixel_color + self.tracer.trace_ray(ray)
-                png[r, c] = pixel_color / num_samples
-        
-        # Save to png
-        spm.imsave('out_img.png', png)
-
+        self.light = np.array([50, 150, 200])
+        self.shader = DiffusePhongShader()
+        #self.shader = NoShader()
 
     def hit_bare_bones_objects(self, ray):
         sr = ShadeRec(self)
-        tmin = 10.0**10
+        tmin = sys.maxsize
         num_objects = len(self.objects)
 
+        # Run through each object
         for i in range(0, num_objects):
             hit, t = self.objects[i].hit(ray, sr)
-
+            # If there is a hit and it is the closest object
             if(hit and t < tmin):
                 sr.hit_an_object = True
                 tmin = t
-                               
-                shader = NoShader()
                 point = ray.origin + t * ray.direction
                 light = self.light
+                # TODO: Make a property of the object
                 k = 1
                 L = normalize(light - point)
                 N = normalize(self.objects[i].get_normal(point))
-                i = self.objects[i].color
-                sr.color = shader.shade(k, L, N, i)
-
+                ill = self.objects[i].color
+                sr.color = self.shader.shade(k, L, N, ill)
         return sr
 
 class ViewPlane:
@@ -250,39 +212,19 @@ class ViewPlane:
         self.vres = vres
         self.pixel_size = pixel_size
         self.gamma = gamma
-        self.num_samples = sampler.num_samples
         self.sampler = sampler
 
-    def set_sampler(self, sampler):
         self.num_samples = sampler.num_samples
-        self.sampler = sampler
-
-    def set_samples(self, num_samples):
-        self.num_samples = num_samples
-        if (num_samples <= 1):
-            self.sampler = SingleSample(1)
-        else:
-            self.sampler = MultiJittered(num_samples)
-
+        
 class Tracer:
-    def trace_ray(self, ray):
-        return RGBColor.clear
-
-class SingleSphereTracer(Tracer):
     def __init__(self, world):
         self.world = world
 
+    @abstractmethod
     def trace_ray(self, ray):
-        sr = ShadeRec(self.world)
-        if(self.world.objects.hit(ray, sr)):
-            return RGBColor.red
-        else:
-            return RGBColor.black
+        pass
 
 class MultipleObjectsTracer(Tracer):
-    def __init__(self, world):
-        self.world = world
-
     def trace_ray(self, ray):
         sr = self.world.hit_bare_bones_objects(ray)
         if(sr.hit_an_object):
@@ -293,10 +235,12 @@ class MultipleObjectsTracer(Tracer):
 class Sampler:
     def __init__(self, num_samples):
         self.num_samples = num_samples
-        self.num_sets = 83 # Magic boi prime number
+
+        # TODO: Magic boi prime number
+        self.num_sets = 83 
         self.samples = np.ndarray((self.num_samples * self.num_sets, 2))
+        # One time generation of randomized samples
         self.generate_samples()
-        self.shuffled_indices = None
         self.count = 0
         self.jump = (random.randint(0, sys.maxsize) % self.num_sets) * self.num_samples
 
@@ -304,27 +248,27 @@ class Sampler:
     def generate_samples(self):
         pass
 
-    def setup_shuffled_indices(self):
-        pass
-
-    def shuffle_samples(self):
-        pass
-
     def sample_unit_square(self):
-        if (self.count % self.num_samples == 0): # Start of a new pixel
+        # Start of a new pixel
+        if (self.count % self.num_samples == 0):
             self.jump = (random.randint(0, sys.maxsize) % self.num_sets) * self.num_samples
-
         sample = self.samples[self.jump + self.count % self.num_samples]
         self.count += 1
         return sample
 
 class SingleSample(Sampler):
     def generate_samples(self):
-        pass
-
-class Regular(Sampler):
-    def generate_samples(self):
-        pass        
+        # Sub pixel number in each direction of square
+        n = int(self.num_samples**0.5)
+        # Run through sampler sets
+        for p in range(0, self.num_sets):
+            # Run through (x,y) in subpixels
+            for j in range(0, n):
+                for k in range(0, n):
+                    x = (k) / n
+                    y = (j) / n
+                    sp = np.array([x, y])
+                    self.samples[p*self.num_samples + j*n + k] = sp
         
 class Jittered(Sampler):
     def generate_samples(self):
@@ -373,14 +317,12 @@ class NRooks(Sampler):
                 self.samples[i + p*self.num_samples + 1][1] = self.samples[target][1]
                 self.samples[target][1] = temp
 
-
-# CORRELATED Multi-jittered (x and y coors are mixed using the same randomization) -> mix shuffling coordinates together
-# Regular Multi-jittered
 # Algorithm from https://graphics.pixar.com/library/MultiJitteredSampling/paper.pdf
+# TODO: Correlated multi-jittered samples are slightly more efficient when shuffling indexes
+# This is regular (non-correlated) multi-jittered
 class MultiJittered(Sampler):
     def generate_samples(self):
         n = int(self.num_samples**0.5)
-
         # Run through each sample set
         for p in range(0, self.num_sets):
             # Run through each psuedo-diagonal sub pixel
@@ -417,18 +359,19 @@ class MultiJittered(Sampler):
                     self.samples[j*n + i][0] = self.samples[j*n + k][0]
                     self.samples[j*n + k][0] = temp
 
-
 class Camera:
-    def __init__(self, eye, up, lookat, exposure_time, zoom):
+    def __init__(self, eye, up, lookat, exposure_time, zoom, view_distance):
         self.eye = eye
-        self.lookat = lookat
         self.up = up
+        self.lookat = lookat
+        self.exposure_time = exposure_time
+        self.zoom = zoom
+        self.view_distance = view_distance
+
         self.u = None
         self.v = None
         self.w = None
         self.compute_uvw()
-        self.exposure_time = exposure_time
-        self.zoom = zoom
 
     def compute_uvw(self):
         w = self.eye - self.lookat
@@ -448,48 +391,22 @@ class Orthographic(Camera):
     def render_scene(self, world):
         pixel_color = RGBColor.clear
         view_plane = copy.deepcopy(world.view_plane)
-        zw = 100
-        ray = Ray(np.array([0,0,0]), np.array([0,0,-1]))
-        num_samples = view_plane.num_samples
+        ray = Ray(self.eye, self.lookat)
         view_plane.pixel_size = view_plane.pixel_size / self.zoom
         png = np.array([[RGBColor.clear for i in range(0,view_plane.vres)] for j in range(0,world.view_plane.hres)])
         
         for r in range(0, view_plane.vres):
             for c in range(0, view_plane.hres):
-
                 pixel_color = RGBColor.clear
-                for j in range(0, num_samples):
+                for j in range(0, view_plane.num_samples):
                     sp = view_plane.sampler.sample_unit_square()
                     x = view_plane.pixel_size * (c - 0.5 * view_plane.hres + sp[0])
                     y = view_plane.pixel_size * (r - 0.5 * view_plane.vres + sp[1])
                     pp = np.array([x,y])
-                    ray.origin = np.array([x,y,zw])
+                    ray.origin = np.array([x,y,ray.origin[2]])
+                    ray.direction = self.ray_direction(pp, self.view_distance)
                     pixel_color = pixel_color + world.tracer.trace_ray(ray)
-                pixel_color = pixel_color / num_samples
-                pixel_color = pixel_color * self.exposure_time
-                png[r, c] = pixel_color
-        spm.imsave('out_img.png', png)
-
-class Pinhole(Camera):
-    def render_scene(self, world):
-        pixel_color = RGBColor.clear
-        view_plane = copy.deepcopy(world.view_plane)
-        ray = Ray(self.eye, np.array([0,0,-1]))
-        num_samples = world.view_plane.num_samples
-        view_plane.pixel_size = view_plane.pixel_size / self.zoom
-        png = np.array([[RGBColor.clear for i in range(0,world.view_plane.vres)] for j in range(0,world.view_plane.hres)])
-        
-        for r in range(0, view_plane.vres):
-            for c in range(0, view_plane.hres):
-                pixel_color = RGBColor.clear
-                for j in range(0, num_samples):
-                    sp = view_plane.sampler.sample_unit_square()
-                    x = view_plane.pixel_size * (c - 0.5 * view_plane.hres + sp[0])
-                    y = view_plane.pixel_size * (r - 0.5 * view_plane.vres + sp[1])
-                    pp = np.array([x,y])
-                    ray.direction = self.ray_direction(pp, world.view_distance)
-                    pixel_color = pixel_color + world.tracer.trace_ray(ray)
-                pixel_color = pixel_color / num_samples
+                pixel_color = pixel_color / view_plane.num_samples
                 pixel_color = pixel_color * self.exposure_time
                 png[r, c] = pixel_color
         spm.imsave('out_img.png', png)
@@ -499,6 +416,35 @@ class Pinhole(Camera):
         direction = normalize(direction)
         return direction
 
+class Pinhole(Camera):
+    def render_scene(self, world):
+        # Deep copy the viewplane so rendering doesn't modify it
+        view_plane = copy.deepcopy(world.view_plane)
+        # Only the eyepoint matters... the direction gets changed in for loops
+        ray = Ray(self.eye, self.lookat)
+        view_plane.pixel_size = view_plane.pixel_size / self.zoom
+        png = np.array([[RGBColor.clear for i in range(0,world.view_plane.vres)] for j in range(0,world.view_plane.hres)])
+        
+        for r in range(0, view_plane.vres):
+            for c in range(0, view_plane.hres):
+                pixel_color = RGBColor.clear
+                for j in range(0, view_plane.num_samples):
+                    sp = view_plane.sampler.sample_unit_square()
+                    x = view_plane.pixel_size * (c - 0.5 * view_plane.hres + sp[0])
+                    y = view_plane.pixel_size * (r - 0.5 * view_plane.vres + sp[1])
+                    pp = np.array([x,y])
+                    ray.direction = self.ray_direction(pp, self.view_distance)
+                    pixel_color = pixel_color + world.tracer.trace_ray(ray)
+                pixel_color = pixel_color / view_plane.num_samples
+                # TODO: Does this affect alpha?
+                pixel_color = pixel_color * self.exposure_time
+                png[r, c] = pixel_color
+        spm.imsave('out_img.png', png)
+
+    def ray_direction(self, p, d):
+        direction = p[0] * self.u + p[1] * self.v - d * self.w
+        direction = normalize(direction)
+        return direction
 
 class Shader:
     @abstractmethod
@@ -512,17 +458,14 @@ class NoShader(Shader):
 class DiffusePhongShader:
     def shade(self, k, L, N, i):
         diffuse = i * k * np.max([0, np.dot(L, N)])
-        # Make alpha same
+        # Keep alpha-value the same
         diffuse[3] = i[3]
-        # print("i: ", i, "diffuse: ", diffuse)
         return diffuse
 
 #================= Run ray tracer ======================
 start_time = time.time()
 w = World()
 w.build()
-#w.render_scene()
-#w.render_perspective()
 w.camera.render_scene(w)
 end_time = time.time()
-print(end_time - start_time)
+print("Render time (s): ", end_time - start_time)
