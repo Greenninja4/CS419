@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.misc as spm
+import imageio
 import time
 import random
 import math
@@ -175,10 +175,10 @@ class World:
         up = np.array([0,1,0])
         lookat = np.array([0, 0, 0])
         exposure_time = 1.0
-        zoom = .333
+        zoom = 0.333
         view_distance = 500
-        #self.camera = Orthographic(eye, up, lookat, exposure_time, zoom, view_distance)
-        self.camera = Pinhole(eye, up, lookat, exposure_time, zoom, view_distance)
+        self.camera = Orthographic(eye, up, lookat, exposure_time, zoom, view_distance)
+        #self.camera = Pinhole(eye, up, lookat, exposure_time, zoom, view_distance)
 
         self.light = np.array([50, 150, 200])
         self.shader = DiffusePhongShader()
@@ -387,6 +387,9 @@ class Camera:
     def render_scene(self):
         pass
 
+    def over_exposure_handler(self, png):
+        png[png > 255] = 255
+
 class Orthographic(Camera):
     def render_scene(self, world):
         pixel_color = RGBColor.clear
@@ -407,9 +410,12 @@ class Orthographic(Camera):
                     ray.direction = self.ray_direction(pp, self.view_distance)
                     pixel_color = pixel_color + world.tracer.trace_ray(ray)
                 pixel_color = pixel_color / view_plane.num_samples
+                #print("1: ", pixel_color)
                 pixel_color = pixel_color * self.exposure_time
+                #print("2: ", pixel_color)
                 png[r, c] = pixel_color
-        spm.imsave('out_img.png', png)
+        self.over_exposure_handler(png)
+        imageio.imwrite('out_img.png', png)
 
     def ray_direction(self, p, d):
         direction = p[0] * self.u + p[1] * self.v - d * self.w
@@ -439,7 +445,8 @@ class Pinhole(Camera):
                 # TODO: Does this affect alpha?
                 pixel_color = pixel_color * self.exposure_time
                 png[r, c] = pixel_color
-        spm.imsave('out_img.png', png)
+        self.over_exposure_handler(png)
+        imageio.imwrite('out_img.png', png)
 
     def ray_direction(self, p, d):
         direction = p[0] * self.u + p[1] * self.v - d * self.w
