@@ -5,6 +5,7 @@
 
 #include "Plane.h"
 #include "Sphere.h"
+#include "Triangle.h"
 #include "Constants.h"
 #include "MultipleObjectsTracer.h"
 
@@ -45,15 +46,17 @@ void World::build(void){
     Vector3D p(0.0, 0.0, 0.0);
     Vector3D n(0.0, 1.0, 1.0);
     Vector3D color(0.0, 100.0, 0.0);
-    Plane* plane_ptr = new Plane(p, n, color);
-    addObject(plane_ptr);
 
-    Sphere* sphere_ptr = new Sphere(Vector3D(0, -25, 0), 80, Vector3D(200, 0, 0));
+    // Plane* plane_ptr = new Plane(p, n, color);
+    // addObject(plane_ptr);
+    Sphere* sphere_ptr = new Sphere(Vector3D(-45, 45, 40), 50, YELLOW);
     addObject(sphere_ptr);
-
-    sphere_ptr = new Sphere(Vector3D(0, 30, 0), 60, Vector3D(0, 200, 200));
+    sphere_ptr = new Sphere(Vector3D(45, 45, 20), 30, RED);
     addObject(sphere_ptr);
-
+    Triangle* triangle_ptr = new Triangle(Vector3D(-110, -85, 80), Vector3D(120, 10, 20), Vector3D(-40, 50, -30), BLUE);
+    addObject(triangle_ptr);
+    triangle_ptr = new Triangle(Vector3D(-10, -8, 80), Vector3D(-120, 130, 20), Vector3D(-400, 50, 30), GREEN);
+    addObject(triangle_ptr);
 }
 
 void World::addObject(GeometricObject* object_ptr){
@@ -81,7 +84,6 @@ void World::renderScene(void) const{
     double zw = 100.0;
     double x, y;
 
-    // double image[vp.vres][vp.hres][3];
     ofstream file;
     file.open("image.ppm");
     file << "P3 " << vp.vres << " " << vp.hres << " " << 255 << "\n";
@@ -94,9 +96,6 @@ void World::renderScene(void) const{
             y = vp.pixelSize * (r - 0.5 * (vp.vres - 1.0));
             ray.o = Vector3D(x, y, zw);
             color = tracer_ptr->traceRay(ray);
-            // image[r][c][0] = color.x;
-            // image[r][c][1] = color.y;
-            // image[r][c][2] = color.z;
             file << (int) color.x << " " << (int) color.y << " " << (int) color.z << "\t";
         }
         file << "\n";

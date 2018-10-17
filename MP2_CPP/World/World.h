@@ -9,27 +9,35 @@
 #include "GeometricObject.h"
 #include "ShadeRec.h"
 #include "Ray.h" 
+#include "Light.h"
+
+using namespace std;
 
 class World{
     public:
-        // Class members
+        // View plane, background color, tracer, ambient light, other lights, objects
         ViewPlane vp;
         Vector3D backgroundColor;
         Tracer* tracer_ptr;
-        std::vector<GeometricObject*> objects;
+        Light* ambient_ptr;
+        vector<Light*> lights;
+        vector<GeometricObject*> objects;
 
         // Constructor, destructor, deletes called in destructor
         World(void);
         ~World (void);
         void delete_tracer(void);
         void delete_objects(void);
+        void delete_ambient(void);
+        void delete_lights(void);
 
         // Member functions
-        void build(void);
         void addObject(GeometricObject* object_ptr);
-        ShadeRec hitBareBonesObjects(const Ray& ray);
+        void add_light(Light* light_ptr);
+        void set_ambient_light(Light* light_ptr);
+        void build(void);
         void renderScene(void) const;
-
+        ShadeRec hitObjects(const Ray& ray);
 
         
 };

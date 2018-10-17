@@ -1,0 +1,74 @@
+MP1:
+--Orthographic Projection
+--Perspective Projection
+--Sampling
+--Shading (Diffuse) w/ directional light
+
+MP2:
+--OBJ & PLY
+--Spatial Data Structure (KD-Tree, BVH, Octree)
+--Shadows
+--Point Lights
+--Phong Shading -> Diffuse AND Specular
+
+--Renders (Lots of spheres, triangle mesh) w/ shadows, phong, point lights
+--Report (1 para, table w/ time to render)
+----Mesh w/o acceleration
+----Mesh w/ acceleration
+----3 Scenes of different magnitude of spheres
+
+--Readme.txt (all code I didn't write / adapted)
+
+
+====================CCCCCUUUUURRRRRRRRRREEEEENNNNNTTTTT=================
+Materials (Matte, )
+BRDFS (Lamertian, )
+-->Modify GeometricObject -> get_material, ShadeRec -> material_ptr, World
+Lights (Directional Ambient, Point)
+
+============ACTUALLY DONE THO================
+Materials (Matte, )
+BRDFS (Lambertian, )
+GeometricObject (Plane, Sphere, Triangle)
+Lights (Directional, Ambient, Point)
+ShadeRec
+
+============NEED TO DO=============
+Phong
+Ambient BRDF?
+Specular BRDF?
+
+
+=====DO IF TIME=====
+Camera
+
+
+
+
+
+TODO:
+--Remove color from shaderec & geometric object (only for Chapter 3)
+
+
+
+Default Constructor
+Regular Constructor
+Copy Constructor
+Assignment Operator
+Destructor
+(Clone / Deep Copy?)
+
+Other Questions...
+--clone?
+--virtual?
+--mutable?
+--forward declarations? (See book shaderec.h)
+--pass by const reference?
+--class protection
+--world.cpp -> why do delete_objects call objects.erase()
+--setters and getters for super classes (makes it a bit easier when inheritence is big so you don't have add fields to subclass constructors
+
+Thoughts...
+--Initializer lists format
+--Order of big 5/6 (def, reg, copy, destr, ass, clone)
+--Include statements order
