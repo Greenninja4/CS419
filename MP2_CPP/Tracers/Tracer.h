@@ -1,20 +1,25 @@
 #ifndef __TRACER__
 #define __TRACER__
 
-class World;
-#include "Vector3D.h"
+#include "Constants.h"
 #include "Ray.h"
+#include "Vector3D.h"
+
+class World; // Forward declaration because World has a Tracer*
 
 class Tracer{
     public:
-        // World
-        World* world_ptr;
+        // Variables
+        World* world_ptr; // World
 
+        // Big 6
         Tracer(void);
         Tracer(World* world_ptr);
         virtual ~Tracer(void);
-        virtual Vector3D traceRay(const Ray& ray) const;
-        Vector3D traceRay(const Ray ray, const int depth) const;
+
+        // Functions
+        virtual Vector3D trace_ray(const Ray& ray) const;
+        virtual Vector3D trace_ray(const Ray ray, const int depth) const;
 };
 
 #endif

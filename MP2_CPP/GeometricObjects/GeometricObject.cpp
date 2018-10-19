@@ -1,24 +1,20 @@
 #include "GeometricObject.h"
-
 #include "Material.h"
 #include "Constants.h"
 
+// Big 6
 GeometricObject::GeometricObject(void): 
     material_ptr(NULL) {}
-GeometricObject::GeometricObject(Material* material_ptr): 
-    material_ptr(material_ptr) {}
 GeometricObject::GeometricObject(const GeometricObject& object){
     if (object.material_ptr){
+        delete material_ptr;
         material_ptr = object.material_ptr->clone();
-    } else {
-        material_ptr = NULL;
     }
 }
-GeometricObject& GeometricObject::operator=(const GeometricObject& rhs){
+GeometricObject& GeometricObject::operator= (const GeometricObject& rhs){
     if (this == &rhs){
         return *this;
     }
-
     if (material_ptr){
         delete material_ptr;
         material_ptr = NULL;
@@ -26,7 +22,6 @@ GeometricObject& GeometricObject::operator=(const GeometricObject& rhs){
     if (rhs.material_ptr){
         material_ptr = rhs.material_ptr->clone();
     }
-    
     return *this;
 }
 GeometricObject::~GeometricObject(void){
@@ -36,10 +31,29 @@ GeometricObject::~GeometricObject(void){
     }
 }
 
+// Getters & Setters
 Material* GeometricObject::get_material(void) const{
     return material_ptr;
 }
-
 void GeometricObject::set_material(Material* material_ptr){
     this->material_ptr = material_ptr;
 }
+// BBox GeometricObject::get_bounding_box(void){
+//     return BBox();
+// }
+// void GeometricObject::set_bounding_box(void){}
+// Vector3D GeometricObject::get_normal(void) const{
+//     return Vector3D();
+// }
+// Vector3D GeometricObject::get_normal(const Vector3D& p) const{
+//     return Vector3D();
+// }
+
+// Functions
+// void add_object(GeometricObject* object_ptr){}
+// Vector3D sample(void){
+//     return Vector3D(0.0);
+// }
+// double pdf(const ShadeRec& sr){
+//     return 0.0;
+// }

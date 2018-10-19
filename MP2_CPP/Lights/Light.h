@@ -10,7 +10,7 @@ class Light{
     public:
         Light(void);
         Light(const Light& light);
-        Light& operator=(const Light& rhs);
+        Light& operator= (const Light& rhs);
         virtual Light* clone(void) const = 0;
         virtual ~Light(void);
 

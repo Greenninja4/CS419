@@ -12,7 +12,7 @@ class Lambertian : public BRDF{
         Lambertian(float k_d, Vector3D color);
         Lambertian(const Lambertian& lambertian);
         virtual ~Lambertian(void);
-        Lambertian& operator=(const Lambertian& rhs);
+        Lambertian& operator= (const Lambertian& rhs);
         virtual Lambertian* clone(void) const;
 
         virtual Vector3D f(const ShadeRec& sr, const Vector3D& wo, const Vector3D& wi) const;

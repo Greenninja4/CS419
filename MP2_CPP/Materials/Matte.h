@@ -12,7 +12,7 @@ class Matte : public Material{
         Matte(void);
         Matte(float k_a, float k_d, Vector3D color);
         Matte(const Matte& matte);
-        Matte& operator=(const Matte& rhs);
+        Matte& operator= (const Matte& rhs);
         ~Matte(void);
         virtual Material* clone(void) const;
 

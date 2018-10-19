@@ -12,7 +12,7 @@ class Ambient : public Light{
         Ambient(void);
         Ambient(float ls, Vector3D color);
         Ambient(const Ambient& ambient);
-        Ambient& operator=(const Ambient& rhs);
+        Ambient& operator= (const Ambient& rhs);
         virtual ~Ambient(void);
         virtual Light* clone(void) const;
 

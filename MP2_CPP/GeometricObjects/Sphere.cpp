@@ -1,25 +1,25 @@
 #include "Sphere.h"
-
 #include "Constants.h"
-#include <cmath>
+#include <math.h>
 
+// Big 6
 Sphere::Sphere(void): 
     GeometricObject(), 
-    center(0.0, 0.0, 0.0),
+    center(0.0, 0.0, 0.0), 
     radius(1.0) {}
-Sphere::Sphere(Vector3D center, double radius): 
+Sphere::Sphere(const Vector3D& center, const double& radius): 
     GeometricObject(), 
     center(center),
     radius(radius) {}
-Sphere::Sphere(const Sphere& sphere):
+Sphere::Sphere(const Sphere& sphere): 
     GeometricObject(sphere), 
     center(sphere.center), 
     radius(sphere.radius) {}
-Sphere& Sphere::operator=(const Sphere& rhs){
+Sphere& Sphere::operator= (const Sphere& rhs){
     if (this == &rhs){
         return *this;
     }
-    GeometricObject::operator=(rhs);
+    GeometricObject::operator= (rhs);
     center = rhs.center;
     radius = rhs.radius;
     return *this;
@@ -29,7 +29,15 @@ Sphere* Sphere::clone(void) const{
     return (new Sphere(*this));
 }
 
-// Hit function
+// Getters & Setters
+void Sphere::set_center(const Vector3D& center){
+    this->center = center;
+}
+void Sphere::set_radius(const double& radius){
+    this->radius = radius;
+}
+
+// Functions
 bool Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
     double t;
     Vector3D temp = ray.o - center;
@@ -49,7 +57,7 @@ bool Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
         if (t > KEPSILON){
             tmin = t;
             sr.normal = (temp + t * ray.d) / radius;
-            sr.localHitPoint = ray.o - t * ray.d;
+            sr.local_hit_point = ray.o - t * ray.d;
             return true;
         }
 
@@ -58,7 +66,7 @@ bool Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
         if (t > KEPSILON){
             tmin = t;
             sr.normal = (temp + t * ray.d) / radius;
-            sr.localHitPoint = ray.o - t * ray.d;
+            sr.local_hit_point = ray.o - t * ray.d;
             return true;
         }
     }

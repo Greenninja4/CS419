@@ -1,4 +1,4 @@
-#include <ctime>
+#include <time.h>
 #include <iostream>
 #include <chrono>
 
@@ -9,7 +9,7 @@ int main(void){
 
     World w;
     w.build();
-    w.renderScene();
+    w.render_scene();
 
     std::chrono::duration<double> elapsed_time = std::chrono::system_clock::now() - start_time;
     double execution_time = elapsed_time.count();

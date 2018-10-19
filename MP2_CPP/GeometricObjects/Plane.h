@@ -5,10 +5,11 @@
 
 class Plane : public GeometricObject{
     public:
-        // Point, normal
-        Vector3D p;
-        Vector3D n;
+        // Variables
+        Vector3D p; // Point
+        Vector3D n; // Normal
 
+        // Big 6
         Plane(void);
         Plane(const Vector3D& p, const Vector3D& n);
         Plane(const Plane& plane);
@@ -16,6 +17,7 @@ class Plane : public GeometricObject{
         ~Plane (void);
         virtual Plane* clone(void) const;
 
+        // Function
 		virtual bool hit(const Ray& ray, double& t, ShadeRec& s) const;
 };
 

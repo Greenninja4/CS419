@@ -1,4 +1,5 @@
 #include "Matte.h"
+#include <iostream>
 
 Matte::Matte(void): 
     Material(), 
@@ -22,12 +23,12 @@ Matte::Matte(const Matte& matte):
         diffuse_brdf = NULL;
     }
 }
-Matte& Matte::operator=(const Matte& rhs){
+Matte& Matte::operator= (const Matte& rhs){
     if(this == &rhs){
         return *this;
     }
 
-    Material::operator=(rhs);
+    Material::operator= (rhs);
 
     if(ambient_brdf){
         delete ambient_brdf;
@@ -65,6 +66,8 @@ Vector3D Matte::shade(ShadeRec& sr){
     Vector3D wo = -sr.ray.d;
     Vector3D L = ambient_brdf->rho(sr, wo) % sr.world.ambient_ptr->L(sr);
     int num_lights = sr.world.lights.size();
+    if (num_lights > 0)
+        // std::cout << "Num lights: " << num_lights << std::endl;
 
     for (int j = 0; j < num_lights; j++){
         Vector3D wi = sr.world.lights[j]->get_direction(sr);

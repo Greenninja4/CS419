@@ -20,11 +20,11 @@ Point::Point(const Point& point):
 Light* Point::clone(void) const{
     return (new Point(*this));
 }
-Point& Point::operator=(const Point& rhs){
+Point& Point::operator= (const Point& rhs){
     if (this == &rhs){
         return *this;
     }
-    Light::operator=(rhs);
+    Light::operator= (rhs);
     ls = rhs.ls;
     color = rhs.color;
     location = rhs.location;
@@ -33,7 +33,7 @@ Point& Point::operator=(const Point& rhs){
 
 Point::~Point(void){}
 Vector3D Point::get_direction(ShadeRec& sr){
-    return ( (location - sr.hitPoint).hat() );
+    return ( (location - sr.hit_point).hat() );
 }
 Vector3D Point::L(ShadeRec& sr){
     return ls * color;

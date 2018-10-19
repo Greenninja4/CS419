@@ -16,11 +16,11 @@ Ambient::Ambient(const Ambient& ambient):
 Light* Ambient::clone(void) const{ 
     return (new Ambient(*this));
 }
-Ambient& Ambient::operator=(const Ambient& rhs){
+Ambient& Ambient::operator= (const Ambient& rhs){
     if (this == &rhs){
         return *this;
     }
-    Light::operator=(rhs);
+    Light::operator= (rhs);
     ls = rhs.ls;
     color = rhs.color;
     return *this;

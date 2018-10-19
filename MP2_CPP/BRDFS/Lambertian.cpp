@@ -15,7 +15,7 @@ Lambertian::Lambertian(const Lambertian& lambertian):
     k_d(lambertian.k_d), 
     color(lambertian.color){}
 Lambertian::~Lambertian(void){}
-Lambertian& Lambertian::operator=(const Lambertian& rhs){
+Lambertian& Lambertian::operator= (const Lambertian& rhs){
     if (this == &rhs){
         return *this;
     }

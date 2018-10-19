@@ -14,7 +14,7 @@ class Point : public Light{
         Point(float ls, Vector3D color, Vector3D location);
         Point(const Point& point);
         virtual Light* clone(void) const;
-        Point& operator=(const Point& rhs);
+        Point& operator= (const Point& rhs);
         virtual ~Point(void);
         
         virtual Vector3D get_direction(ShadeRec& sr);

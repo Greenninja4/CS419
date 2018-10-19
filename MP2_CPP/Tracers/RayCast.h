@@ -8,8 +8,8 @@ class RayCast : public Tracer {
         RayCast(void);
         RayCast(World* world_ptr);
         virtual ~RayCast(void);
-        virtual Vector3D traceRay(const Ray& ray) const;
-        virtual Vector3D traceRay(const Ray ray, const int depth) const;
+        virtual Vector3D trace_ray(const Ray& ray) const;
+        virtual Vector3D trace_ray(const Ray ray, const int depth) const;
 };
 
 #endif

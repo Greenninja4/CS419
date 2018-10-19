@@ -1,41 +1,40 @@
 #ifndef __VECTOR3D__
 #define __VECTOR3D__
 
+#include "Matrix.h"
+
 class Vector3D{
     public:
-        // Members
-        double x, y, z;
+        // Variables
+        double x, y, z; // XYZ-Coordinates
 
-        // Constructors
-        // default, regular, copy, destructor
+        // Big 6
         Vector3D(void);
 		Vector3D(double x, double y, double z);
+        Vector3D(double xyz);
 		Vector3D(const Vector3D& v);
+        Vector3D& operator= (const Vector3D& rhs);
 		~Vector3D (void);
 
-        // Operators 
-        // assignment, negation, scalar multiplication, scalar division
-		Vector3D& operator= (const Vector3D& rhs);
-		Vector3D operator- (void) const;
-		Vector3D operator* (const double a) const;
-        Vector3D operator/ (const double a) const;
-        // dot product, cross product, vector addition, vector subtraction, element-wise multiplication
-        double operator* (const Vector3D& v) const;
-		Vector3D operator^ (const Vector3D& v) const;
-		Vector3D operator+ (const Vector3D& v) const;
-		Vector3D operator- (const Vector3D& v) const;
-        Vector3D operator% (const Vector3D& v) const;
+        // Operators
+		Vector3D operator- (void) const;                // Negation
+		Vector3D operator* (const double a) const;      // Scalar Multiplication
+        Vector3D operator/ (const double a) const;      // Scalar Division
+        double operator* (const Vector3D& v) const;     // Dot Product
+		Vector3D operator^ (const Vector3D& v) const;   // Cross Product
+		Vector3D operator+ (const Vector3D& v) const;   // Vector Addition
+		Vector3D operator- (const Vector3D& v) const;   // Vector Subtraction
+        Vector3D operator% (const Vector3D& v) const;   // Element-wise Multiplication
 
-        // Member Functions
-        // get length of vector, normalizes vector, get distance between vectors
-        double length(void);
-        void normalize(void);
-        double distance(const Vector3D& v);
-        Vector3D& hat(void);
-
+        // Functions
+        double length(void);                    // Length
+        double distance(const Vector3D& v);     // Distance
+        void normalize(void);                   // Normalizes vector
+        Vector3D& hat(void);                    // Normalizes vector AND returns vector
 };
 
-// Non-member functions
-Vector3D operator* (const double a, const Vector3D& v);
+// Non-member Functions
+Vector3D operator* (const double a, const Vector3D& v);     // Scalar Multiplication (scalar on left)
+Vector3D operator* (const Matrix& mat, const Vector3D& v);  // Matrix Multiplication (matrix on left)
 
 #endif

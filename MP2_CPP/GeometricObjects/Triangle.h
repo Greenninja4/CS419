@@ -3,23 +3,24 @@
 
 #include "GeometricObject.h"
 
-class Triangle: public GeometricObject{
+class Triangle : public GeometricObject{
     public:
-        // Point 1, 2, and 3, normal
-        Vector3D p1;
-        Vector3D p2;
-        Vector3D p3;
-        Vector3D n;
+        // Variables
+        Vector3D p1, p2, p3;    // Points
+        Vector3D n;             // Normal
 
+        // Big 6
         Triangle(void);
-        Triangle(Vector3D p1, Vector3D p2, Vector3D p3);
+        Triangle(const Vector3D& p1, const Vector3D& p2, const Vector3D& p3);
         Triangle(const Triangle& triangle);
-        Triangle& operator=(const Triangle& rhs);
-        ~Triangle (void);
+        Triangle& operator= (const Triangle& rhs);
+        virtual ~Triangle (void);
         virtual Triangle* clone(void) const;
 
-        // Member functions
+        // Functions
 		virtual bool hit(const Ray& ray, double& t, ShadeRec& s) const;
+        // virtual BBox get_bounding_box(void);
+        void compute_normal(void);
 };
 
 #endif

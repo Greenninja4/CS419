@@ -21,11 +21,11 @@ Directional::Directional(const Directional& directional):
 Light* Directional::clone(void) const{
     return (new Directional(*this));
 }
-Directional& Directional::operator=(const Directional& rhs){
+Directional& Directional::operator= (const Directional& rhs){
     if (this == &rhs){
         return (*this);
     }
-    Light::operator=(rhs);
+    Light::operator= (rhs);
     ls = rhs.ls;
     color = rhs.color;
     dir = rhs.dir;

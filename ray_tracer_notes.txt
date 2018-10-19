@@ -1,3 +1,24 @@
+
+=======================GOOD SO FAR============================
+Ray
+Vector3D
+Matrix
+GeometricObject (has commented out functions)
+ShadeRec (idk what the commented out include statements are)
+Plane
+Sphere
+Triangle (has commented out BBox)
+World (didn't type Renderer from github, do setters and getters need to delete old pointers?)
+	World::render_scene() needs to have sampler support added
+Tracer
+
+======================POSSIBLY IMPLEMENT============================
+Samplers
+Shadow Hit -> slighlty optimized b/c it stops as soon as it hits something
+
+
+========================MP SPECIFICATIONS===========================
+
 MP1:
 --Orthographic Projection
 --Perspective Projection
@@ -20,45 +41,7 @@ MP2:
 --Readme.txt (all code I didn't write / adapted)
 
 
-====================CCCCCUUUUURRRRRRRRRREEEEENNNNNTTTTT=================
-Materials (Matte, )
-BRDFS (Lamertian, )
--->Modify GeometricObject -> get_material, ShadeRec -> material_ptr, World
-Lights (Directional Ambient, Point)
-
-============ACTUALLY DONE THO================
-Materials (Matte, )
-BRDFS (Lambertian, )
-GeometricObject (Plane, Sphere, Triangle)
-Lights (Directional, Ambient, Point)
-ShadeRec
-
-============NEED TO DO=============
-Phong
-Ambient BRDF?
-Specular BRDF?
-
-
-=====DO IF TIME=====
-Camera
-
-
-
-
-
-TODO:
---Remove color from shaderec & geometric object (only for Chapter 3)
-
-
-
-Default Constructor
-Regular Constructor
-Copy Constructor
-Assignment Operator
-Destructor
-(Clone / Deep Copy?)
-
-Other Questions...
+============================QUESTIONS==============================
 --clone?
 --virtual?
 --mutable?
@@ -67,8 +50,15 @@ Other Questions...
 --class protection
 --world.cpp -> why do delete_objects call objects.erase()
 --setters and getters for super classes (makes it a bit easier when inheritence is big so you don't have add fields to subclass constructors
-
-Thoughts...
 --Initializer lists format
 --Order of big 5/6 (def, reg, copy, destr, ass, clone)
 --Include statements order
+--Make everything getters and setter? Or is that too slow?
+
+Default Constructor
+Regular Constructor
+Copy Constructor
+Assignment Operator
+Destructor
+Clone / Deep Copy
+

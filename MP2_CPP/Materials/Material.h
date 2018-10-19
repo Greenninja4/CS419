@@ -9,7 +9,7 @@ class Material{
     public:
         Material(void);
         Material(const Material& material);
-        Material& operator=(const Material& rhs);
+        Material& operator= (const Material& rhs);
         virtual ~Material(void);
         virtual Material* clone(void) const = 0;
 

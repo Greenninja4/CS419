@@ -16,7 +16,7 @@ class Directional : public Light{
         Directional(void);
         Directional(float ls, Vector3D color, Vector3D dir);
         Directional(const Directional& directional);
-        Directional& operator=(const Directional& rhs);
+        Directional& operator= (const Directional& rhs);
         virtual ~Directional(void);
         virtual Light* clone(void) const;
 
