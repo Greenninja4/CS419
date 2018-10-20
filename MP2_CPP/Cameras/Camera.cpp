@@ -1,16 +1,15 @@
 #include "Camera.h"
-#include <iostream>
 
 Camera::Camera(void):
     eye(0, 0, 500), 
     lookat(0, 0, 0), 
     up(0, 1, 0), 
-    roll(0, 0, 0), 
+    roll(0), 
     exposure_time(1.0), 
     u(1, 0, 0), 
     v(0, 1, 0), 
     w(0, 0, 1) {}
-Camera::Camera(const Vector3D& eye, const Vector3D& lookat, const Vector3D& up, const Vector3D& roll, float exposure_time): 
+Camera::Camera(const Vector3D& eye, const Vector3D& lookat, const Vector3D& up, const double& roll, float exposure_time): 
     eye(eye), 
     lookat(lookat), 
     up(up), 
@@ -50,12 +49,14 @@ void Camera::compute_uvw(void){
     u.normalize();
     v = w^u;
 
-    // Singularity (divide by zero, I think) -> looking up OR looking down
+    // Singularity (divide by zero)
+    // Looking Up (+y-axis)
     if ( (eye.x == lookat.x) && (eye.z == lookat.z) && (eye.y > lookat.y) ){
         u = Vector3D(0, 0, 1);
         v = Vector3D(1, 0, 0);
         w = Vector3D(0, 1, 0);
     }
+    // Looking Down (-y-axis)
     if ( (eye.x == lookat.x) && (eye.z == lookat.z) && (eye.y < lookat.y) ) {
         u = Vector3D(1, 0, 0);
         v = Vector3D(0, 0, 1);

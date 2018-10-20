@@ -13,8 +13,10 @@
 #include "Triangle.h"
 // Cameras
 #include "Pinhole.h"
+#include "Orthographic.h"
 // Materials
 #include "Matte.h"
+#include "Phong.h"
 // Lights
 #include "Ambient.h"
 #include "Directional.h"
@@ -186,10 +188,10 @@ ShadeRec World::hit_objects(const Ray& ray){
     return sr;
 }
 void World::build(void){
-    float light_radiance = 5.0;
+    float light_radiance = 4.0;
 
     // View Plane
-    vp = ViewPlane(600, 400, 1.0, 1.0);
+    vp = ViewPlane(600, 600, 1.0, 1.0);
 
     // Ambient Light
     ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
@@ -203,59 +205,94 @@ void World::build(void){
     // Lights
     // Directional* directional_ptr = new Directional(light_radiance, WHITE, Vector3D(1, 1, 2));
     // add_light(directional_ptr);
-    Point* point_ptr = new Point(light_radiance * 2.0, WHITE, Vector3D(15, 15, 2.5));
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(-150, -150, 10));
     add_light(point_ptr);
 
     // Camera
-    Pinhole* pinhole_ptr = new Pinhole();
-    Vector3D eye1(0, -50, 0);
-    pinhole_ptr->eye = eye1;
-    Vector3D lookat1(-1, 3.7, 0);
-    pinhole_ptr->lookat = lookat1;
-    float distance1 = 800;
-    pinhole_ptr->distance = distance1;
-    pinhole_ptr->compute_uvw();
-    this->camera_ptr = pinhole_ptr;
+    // Camera: Pinhole
+    // Pinhole* pinhole_ptr = new Pinhole();
+    // Vector3D eye1(0, -50, 0);
+    // pinhole_ptr->eye = eye1;
+    // Vector3D lookat1(-1, 3.7, 0);
+    // pinhole_ptr->lookat = lookat1;
+    // float distance1 = 800;
+    // pinhole_ptr->distance = distance1;
+    // pinhole_ptr->compute_uvw();
+    // this->camera_ptr = pinhole_ptr;
+
+    // Camera: Orthographic
+    Orthographic* orthographic_ptr = new Orthographic();
+    Vector3D eye1(10, 0, 0);
+    orthographic_ptr->eye = eye1;
+    Vector3D lookat1(0, 0, -1);
+    orthographic_ptr->lookat = lookat1;
+    float distance1 = 100;
+    orthographic_ptr->distance = distance1;
+    orthographic_ptr->compute_uvw();
+    this->camera_ptr = orthographic_ptr;
 
     // Materials
     Matte* emissive_ptr = new Matte(1, 1, WHITE);
-    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    // Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
     Matte* red_ptr = new Matte(0.25, 0.75, RED);
     Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
-    Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
+    Phong* yellow_phong_ptr = new Phong(0.25, 0.75, 0.5, 3.0, YELLOW);
+    //Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
 
-    // Objects
-    Sphere* sphere_ptr = new Sphere(Vector3D(15, 15, 2.5), 1.0);
+    // Light
+    Sphere* sphere_ptr = new Sphere(Vector3D(-150, -150, 10), 5.0);
     sphere_ptr->set_material(emissive_ptr);
     add_object(sphere_ptr);
 
-    sphere_ptr = new Sphere(Vector3D(3.85, 2.3, -2.55), 2.3);
-    sphere_ptr->set_material(yellow_ptr);
-    add_object(sphere_ptr);
-
-    sphere_ptr = new Sphere(Vector3D(-0.7, 1, 4.2), 2);
+    // Spheres
+    sphere_ptr = new Sphere(Vector3D(0, -25, 0), 80);
     sphere_ptr->set_material(red_ptr);
     add_object(sphere_ptr);
 
-    //ORTHO SPHERES
-    sphere_ptr = new Sphere(Vector3D(10, 0, 0), 1);
-    sphere_ptr->set_material(blue_ptr->clone());
+    sphere_ptr = new Sphere(Vector3D(0, 30, 0), 60);
+    sphere_ptr->set_material(green_ptr);
     add_object(sphere_ptr);
 
-    sphere_ptr = new Sphere(Vector3D(0, 10, 0), 1);
-    sphere_ptr->set_material(blue_ptr);
+    sphere_ptr = new Sphere(Vector3D(100, -100, 0), 40);
+    sphere_ptr->set_material(yellow_phong_ptr);
     add_object(sphere_ptr);
 
-    sphere_ptr = new Sphere(Vector3D(0, 0, 10), 1);
-    sphere_ptr->set_material(blue_ptr->clone());
-    add_object(sphere_ptr);
+    // Plane* plane_ptr = new Plane(Vector3D(0, 0, 0), Vector3D(0, 1, 1));
+    // plane_ptr->set_material(yellow_ptr);
+    // add_object(plane_ptr);
 
-    sphere_ptr = new Sphere(Vector3D(0, 0, 0), 1);
-    sphere_ptr->set_material(blue_ptr->clone());
-    add_object(sphere_ptr);
+    // // Objects
+    // Sphere* sphere_ptr = new Sphere(Vector3D(15, 15, 2.5), 1.0);
+    // sphere_ptr->set_material(emissive_ptr);
+    // add_object(sphere_ptr);
 
-    // Triangle
-    Triangle* tri_ptr = new Triangle(Vector3D(0, 2, 3), Vector3D(2,3,4), Vector3D(3,4,5));
-    tri_ptr->set_material(green_ptr);
-    add_object(tri_ptr);
+    // sphere_ptr = new Sphere(Vector3D(3.85, 2.3, -2.55), 2.3);
+    // sphere_ptr->set_material(yellow_ptr);
+    // add_object(sphere_ptr);
+
+    // sphere_ptr = new Sphere(Vector3D(-0.7, 1, 4.2), 2);
+    // sphere_ptr->set_material(red_ptr);
+    // add_object(sphere_ptr);
+
+    // //ORTHO SPHERES
+    // sphere_ptr = new Sphere(Vector3D(10, 0, 0), 1);
+    // sphere_ptr->set_material(blue_ptr->clone());
+    // add_object(sphere_ptr);
+
+    // sphere_ptr = new Sphere(Vector3D(0, 10, 0), 1);
+    // sphere_ptr->set_material(blue_ptr);
+    // add_object(sphere_ptr);
+
+    // sphere_ptr = new Sphere(Vector3D(0, 0, 10), 1);
+    // sphere_ptr->set_material(blue_ptr->clone());
+    // add_object(sphere_ptr);
+
+    // sphere_ptr = new Sphere(Vector3D(0, 0, 0), 1);
+    // sphere_ptr->set_material(blue_ptr->clone());
+    // add_object(sphere_ptr);
+
+    // // Triangle
+    // Triangle* tri_ptr = new Triangle(Vector3D(0, 2, 3), Vector3D(2,3,4), Vector3D(3,4,5));
+    // tri_ptr->set_material(green_ptr);
+    // add_object(tri_ptr);
 }

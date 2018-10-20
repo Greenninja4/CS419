@@ -7,7 +7,7 @@ Pinhole::Pinhole(void):
     Camera(), 
     distance(500), 
     zoom(1.0) {}
-Pinhole::Pinhole(Vector3D& eye, Vector3D& lookat, Vector3D& up, Vector3D& roll, float exposure_time, float distance, float zoom): 
+Pinhole::Pinhole(Vector3D& eye, Vector3D& lookat, Vector3D& up, double roll, float exposure_time, float distance, float zoom): 
     Camera(), 
     distance(distance), 
     zoom(zoom) {
@@ -43,7 +43,7 @@ Camera* Pinhole::clone(void) const{
     return (new Pinhole(*this));
 }
 
-Vector3D Pinhole::get_direction(const Vector3D p) const{
+Vector3D Pinhole::get_direction(const Vector3D& p) const{
     Vector3D dir = p.x * u + p.y * v - distance * w;
     dir.normalize();
     return dir;
@@ -70,8 +70,6 @@ void Pinhole::render_scene(const World& w){
             color = w.tracer_ptr->trace_ray(ray);
             color = color * exposure_time;
             color = w.max_to_one(color);
-
-            // cout << color.x << color.y << color.z << endl;
             file << (int) (255 * color.x) << " " << (int) (255 * color.y) << " " << (int) (255 * color.z) << "\t";
         }
         file << "\n";

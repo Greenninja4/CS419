@@ -5,17 +5,19 @@
 
 class Ambient : public Light{
     public:
-        // Radiance, color
-        float ls;
-        Vector3D color;
+        // Variables
+        float ls;           // Radiance (magnitude)
+        Vector3D color;     // Color of light
 
+        // Big 6
         Ambient(void);
-        Ambient(float ls, Vector3D color);
+        Ambient(const float& ls, const Vector3D& color);
         Ambient(const Ambient& ambient);
         Ambient& operator= (const Ambient& rhs);
         virtual ~Ambient(void);
         virtual Light* clone(void) const;
 
+        // Functions
         virtual Vector3D get_direction(ShadeRec& sr);
         virtual Vector3D L(ShadeRec& sr);
 };

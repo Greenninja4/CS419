@@ -1,14 +1,16 @@
 #include "Phong.h"
-#include <iostream>
 
+// Big 6
 Phong::Phong(void): 
     Material(), 
     ambient_brdf(new Lambertian), 
-    diffuse_brdf(new Lambertian){}
-Phong::Phong(float k_a, float k_d, Vector3D color): 
+    diffuse_brdf(new Lambertian),
+    specular_brdf(new GlossySpecular) {}
+Phong::Phong(const float& k_a, const float& k_d, const float& k_s, const float& exp, const Vector3D& color): 
     Material(), 
     ambient_brdf(new Lambertian(k_a, color)), 
-    diffuse_brdf(new Lambertian(k_d, color)){}
+    diffuse_brdf(new Lambertian(k_d, color)), 
+    specular_brdf(new GlossySpecular(k_s, color, exp)) {}
 Phong::Phong(const Phong& phong): 
     Material(phong){
     if(phong.ambient_brdf){
@@ -21,6 +23,12 @@ Phong::Phong(const Phong& phong):
         diffuse_brdf = phong.diffuse_brdf->clone();
     } else{
         diffuse_brdf = NULL;
+    }
+
+    if(phong.specular_brdf){
+        specular_brdf = phong.specular_brdf->clone();
+    } else{
+        specular_brdf = NULL;
     }
 }
 Phong& Phong::operator= (const Phong& rhs){
@@ -46,6 +54,14 @@ Phong& Phong::operator= (const Phong& rhs){
         diffuse_brdf = rhs.diffuse_brdf->clone();
     }
 
+    if(specular_brdf){
+        delete specular_brdf;
+        specular_brdf = NULL;
+    }
+    if (rhs.specular_brdf){
+        specular_brdf = rhs.specular_brdf->clone();
+    }
+
     return (*this);
 }
 Phong::~Phong(void){
@@ -57,6 +73,10 @@ Phong::~Phong(void){
         delete diffuse_brdf;
         diffuse_brdf = NULL;
     }
+    if (specular_brdf){
+        delete specular_brdf;
+        specular_brdf = NULL;
+    }
 }
 Material* Phong::clone(void) const{
     return (new Phong(*this));
@@ -66,15 +86,14 @@ Vector3D Phong::shade(ShadeRec& sr){
     Vector3D wo = -sr.ray.d;
     Vector3D L = ambient_brdf->rho(sr, wo) % sr.world.ambient_ptr->L(sr);
     int num_lights = sr.world.lights.size();
-    if (num_lights > 0)
-        // std::cout << "Num lights: " << num_lights << std::endl;
 
     for (int j = 0; j < num_lights; j++){
         Vector3D wi = sr.world.lights[j]->get_direction(sr);
         double ndotwi = sr.normal * wi;
 
         if (ndotwi > 0.0){
-            L = L + diffuse_brdf->f(sr, wo, wi) % sr.world.lights[j]->L(sr) * ndotwi;
+            L = L + (diffuse_brdf->f(sr, wo, wi) + specular_brdf->f(sr, wo, wi))
+                     % (sr.world.lights[j]->L(sr)) * ndotwi;
         }
     }
     return L;

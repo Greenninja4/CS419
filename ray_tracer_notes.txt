@@ -8,12 +8,22 @@ ShadeRec (idk what the commented out include statements are)
 Plane
 Sphere
 Triangle (has commented out BBox)
-World (didn't type Renderer from github, do setters and getters need to delete old pointers?)
+World (didn't type Renderer from github, do setters and getters need to delete old pointers?, display_pixel gamma value input)
 	World::render_scene() needs to have sampler support added
 Tracer
+Camera
+Pinhole (need to implement roll)
+Orthographic (need to implement roll)
+Light (what is bool shadows?)
+Directional
+Ambient
+Point
+GlossySpecular (Vector& wi in sample_f is not const?, Also implement samplers, rho is not const Vector&)
+
 
 ======================POSSIBLY IMPLEMENT============================
 Samplers
+Thin Lens Camera (requires sampling...)
 Shadow Hit -> slighlty optimized b/c it stops as soon as it hits something
 
 

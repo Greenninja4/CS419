@@ -8,18 +8,20 @@
 
 class Directional : public Light{
     public:
-        // Radiance, color, direction
-        float ls;
-        Vector3D color;
-        Vector3D dir;
+        // Variables
+        float ls;           // Radiance
+        Vector3D color;     // Color
+        Vector3D dir;       // Direction
 
+        // Big 6
         Directional(void);
-        Directional(float ls, Vector3D color, Vector3D dir);
+        Directional(const float&  ls, const Vector3D& color, const Vector3D& dir);
         Directional(const Directional& directional);
         Directional& operator= (const Directional& rhs);
         virtual ~Directional(void);
         virtual Light* clone(void) const;
 
+        // Functions
         virtual Vector3D get_direction(ShadeRec& sr);
         virtual Vector3D L(ShadeRec& sr);
 };
