@@ -66,15 +66,22 @@ Vector3D Matte::shade(ShadeRec& sr){
     Vector3D wo = -sr.ray.d;
     Vector3D L = ambient_brdf->rho(sr, wo) % sr.world.ambient_ptr->L(sr);
     int num_lights = sr.world.lights.size();
-    if (num_lights > 0)
-        // std::cout << "Num lights: " << num_lights << std::endl;
 
     for (int j = 0; j < num_lights; j++){
         Vector3D wi = sr.world.lights[j]->get_direction(sr);
         double ndotwi = sr.normal * wi;
 
         if (ndotwi > 0.0){
-            L = L + diffuse_brdf->f(sr, wo, wi) % sr.world.lights[j]->L(sr) * ndotwi;
+
+            bool in_shadow = false;
+            if (sr.world.lights[j]->casts_shadow()){
+                Ray shadow_ray(sr.hit_point, wi);
+                in_shadow = sr.world.lights[j]->in_shadow(shadow_ray, sr);
+            }
+
+            if (!in_shadow){
+                L = L + diffuse_brdf->f(sr, wo, wi) % sr.world.lights[j]->L(sr) * ndotwi;
+            }
         }
     }
     return L;

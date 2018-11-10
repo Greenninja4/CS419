@@ -3,10 +3,11 @@
 
 #include <math.h>
 #include "Constants.h"
-// #include "BBox.h"
 #include "Vector3D.h"
 #include "Ray.h"
 #include "ShadeRec.h"
+#include "BBox.h"
+#include <iostream>
 
 class Material; // Material is only a pointer, so we can use forward declaration
 
@@ -25,8 +26,8 @@ class GeometricObject{
         // Getters & Setters
         Material* get_material(void) const;                                     // Get the material
         virtual void set_material(Material* material_ptr);                      // Set the material
-        // virtual BBox get_bounding_box(void);                                    // Gets bounding box
-        // virtual void set_bounding_box(void);                                    // Sets bounding box
+        virtual BBox get_bounding_box(void);                                    // Gets bounding box
+        virtual void set_bounding_box(void);                                    // Sets bounding box
         // virtual Vector3D get_normal(void) const;                                // Get the normal
         // virtual Vector3D get_normal(const Vector3D& p) const;                   // Get the normal at a point                                    
 
@@ -35,6 +36,7 @@ class GeometricObject{
         // virtual void add_object(GeometricObject* object_ptr);                   // ??????
         // virtual Vector3D sample(void);                                          // ??????
         // virtual double pdf(const ShadeRec& sr);                                 // ??????
+        virtual bool shadow_hit(const Ray& ray, double& tmin) const;
 };
 
 #endif

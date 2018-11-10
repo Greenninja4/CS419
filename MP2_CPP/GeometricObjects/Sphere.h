@@ -8,6 +8,7 @@ class Sphere : public GeometricObject{
         // Variables
         Vector3D center;    // Center
         double radius;      // Radius
+        BBox bbox;          // Bounding box
 
         // Big 6
         Sphere(void);
@@ -19,10 +20,13 @@ class Sphere : public GeometricObject{
 
         // Getters & Setters
         void set_center(const Vector3D& center);
-        void set_radius(const double& r);
+        void set_radius(const double& radius);
 
         // Functions
 		virtual bool hit(const Ray& ray, double& t, ShadeRec& s) const;
+        virtual bool shadow_hit(const Ray& ray, double& tmin) const;
+        virtual BBox get_bounding_box(void);
+        virtual void set_bounding_box(void);
 };
 
 #endif

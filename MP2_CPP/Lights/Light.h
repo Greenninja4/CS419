@@ -4,12 +4,12 @@
 #include "Vector3D.h"
 #include "Ray.h"
 
-class ShadeRec; // Forward declaration because idk?
+class ShadeRec;     // Forward declaration because idk?
 
 class Light{
     public:
         // Variables
-        bool shadows;   // Shadows
+        // bool shadows;   // Shadows are in effect for light?
 
         // Big 6
         Light(void);
@@ -21,6 +21,8 @@ class Light{
         // Functinos
         virtual Vector3D get_direction(ShadeRec& sr) = 0;
         virtual Vector3D L(ShadeRec& sr);
+        virtual bool casts_shadow(void) const;
+        virtual bool in_shadow(const Ray& ray, const ShadeRec& sr) const;
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include "ShadeRec.h"
 #include "Constants.h"
+#include <iostream>
+using namespace std;
 
 // Big 6
 ShadeRec::ShadeRec(const World& world): 
@@ -26,4 +28,20 @@ ShadeRec::ShadeRec(const ShadeRec& sr):
     u(sr.u), 
     v(sr.v), 
     world(sr.world) {}
+ShadeRec& ShadeRec::operator= (const ShadeRec& rhs){
+    if (this == &rhs){
+        return *this;
+    }
+    hit_an_object = rhs.hit_an_object;
+    material_ptr = rhs.material_ptr;
+    hit_point = rhs.hit_point;
+    local_hit_point = rhs.local_hit_point;
+    normal = rhs.normal;
+    ray = rhs.ray;
+    depth = rhs.depth;
+    t = rhs.t;
+    u = rhs.u;
+    v = rhs.v;
+    return *this;
+}
 ShadeRec::~ShadeRec(void){}

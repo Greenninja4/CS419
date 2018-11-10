@@ -2,6 +2,8 @@
 // Utilities
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <vector>
 #include "Constants.h"
 #include "Ray.h"
 #include "ShadeRec.h"
@@ -11,6 +13,7 @@
 #include "Plane.h"
 #include "Sphere.h"
 #include "Triangle.h"
+#include "TriangleMesh.h"
 // Cameras
 #include "Pinhole.h"
 #include "Orthographic.h"
@@ -21,6 +24,8 @@
 #include "Ambient.h"
 #include "Directional.h"
 #include "Point.h"
+// Acceleration
+#include "BVH.h"
 
 using namespace std;
 
@@ -187,11 +192,25 @@ ShadeRec World::hit_objects(const Ray& ray){
     }
     return sr;
 }
-void World::build(void){
-    float light_radiance = 4.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void World::orthographic_build(void){
+        float light_radiance = 4.0;
 
     // View Plane
-    vp = ViewPlane(600, 600, 1.0, 1.0);
+    vp = ViewPlane(100, 100, 1.0, 1.0);
 
     // Ambient Light
     ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
@@ -205,20 +224,8 @@ void World::build(void){
     // Lights
     // Directional* directional_ptr = new Directional(light_radiance, WHITE, Vector3D(1, 1, 2));
     // add_light(directional_ptr);
-    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(-150, -150, 10));
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(-12, 15, 30));
     add_light(point_ptr);
-
-    // Camera
-    // Camera: Pinhole
-    // Pinhole* pinhole_ptr = new Pinhole();
-    // Vector3D eye1(0, -50, 0);
-    // pinhole_ptr->eye = eye1;
-    // Vector3D lookat1(-1, 3.7, 0);
-    // pinhole_ptr->lookat = lookat1;
-    // float distance1 = 800;
-    // pinhole_ptr->distance = distance1;
-    // pinhole_ptr->compute_uvw();
-    // this->camera_ptr = pinhole_ptr;
 
     // Camera: Orthographic
     Orthographic* orthographic_ptr = new Orthographic();
@@ -232,67 +239,493 @@ void World::build(void){
     this->camera_ptr = orthographic_ptr;
 
     // Materials
-    Matte* emissive_ptr = new Matte(1, 1, WHITE);
-    // Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    //Matte* emissive_ptr = new Matte(1, 1, WHITE);
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
     Matte* red_ptr = new Matte(0.25, 0.75, RED);
     Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
-    Phong* yellow_phong_ptr = new Phong(0.25, 0.75, 0.5, 3.0, YELLOW);
-    //Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
+    //Phong* yellow_phong_ptr = new Phong(0.25, 0.75, 0.5, 3.0, YELLOW);
 
     // Light
-    Sphere* sphere_ptr = new Sphere(Vector3D(-150, -150, 10), 5.0);
-    sphere_ptr->set_material(emissive_ptr);
-    add_object(sphere_ptr);
-
-    // Spheres
-    sphere_ptr = new Sphere(Vector3D(0, -25, 0), 80);
-    sphere_ptr->set_material(red_ptr);
-    add_object(sphere_ptr);
-
-    sphere_ptr = new Sphere(Vector3D(0, 30, 0), 60);
-    sphere_ptr->set_material(green_ptr);
-    add_object(sphere_ptr);
-
-    sphere_ptr = new Sphere(Vector3D(100, -100, 0), 40);
-    sphere_ptr->set_material(yellow_phong_ptr);
-    add_object(sphere_ptr);
-
-    // Plane* plane_ptr = new Plane(Vector3D(0, 0, 0), Vector3D(0, 1, 1));
-    // plane_ptr->set_material(yellow_ptr);
-    // add_object(plane_ptr);
-
-    // // Objects
-    // Sphere* sphere_ptr = new Sphere(Vector3D(15, 15, 2.5), 1.0);
+    Sphere* sphere_ptr = new Sphere(Vector3D(-12, 15, 30), 0.1);
     // sphere_ptr->set_material(emissive_ptr);
     // add_object(sphere_ptr);
 
-    // sphere_ptr = new Sphere(Vector3D(3.85, 2.3, -2.55), 2.3);
-    // sphere_ptr->set_material(yellow_ptr);
-    // add_object(sphere_ptr);
+    sphere_ptr = new Sphere(Vector3D(0.0, 2.4, 0), 1.5);
+    sphere_ptr->set_material(red_ptr);
+    add_object(sphere_ptr);
 
-    // sphere_ptr = new Sphere(Vector3D(-0.7, 1, 4.2), 2);
+    Triangle* tri_ptr = new Triangle(Vector3D(1.5, -0.5, 1.8), Vector3D(7.5, -0.5, -9.00), Vector3D(2.35, 5.8, 1.4));
+    tri_ptr->set_material(green_ptr);
+    add_object(tri_ptr);
+
+    Plane* plane_ptr = new Plane(Vector3D(0, -0.5, 0), Vector3D(0, 1, 0));
+    plane_ptr->set_material(yellow_ptr);
+    add_object(plane_ptr);
+
+}
+
+void World::shadow_build(void){
+    float light_radiance = 4.0;
+
+    // View Plane
+    vp = ViewPlane(100, 100, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    // Directional* directional_ptr = new Directional(light_radiance, WHITE, Vector3D(1, 1, 2));
+    // add_light(directional_ptr);
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(-12, 15, 30));
+    add_light(point_ptr);
+
+    // Camera
+    // Camera: Pinhole
+    Pinhole* pinhole_ptr = new Pinhole();
+    pinhole_ptr->up = Vector3D(0, -1, 0);
+    pinhole_ptr->zoom = 0.5;
+    Vector3D eye1(2, 2.5, 15);
+    pinhole_ptr->eye = eye1;
+    Vector3D lookat1(0 + 3, 2.5, 0);
+    pinhole_ptr->lookat = lookat1;
+    float distance1 = 700;
+    pinhole_ptr->distance = distance1;
+    pinhole_ptr->compute_uvw();
+    this->camera_ptr = pinhole_ptr;
+
+    // Materials
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    Matte* red_ptr = new Matte(0.25, 0.75, RED);
+    Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
+
+    // Objects
+    Sphere* sphere_ptr = new Sphere(Vector3D(0.0, 2.4, 0), 1.5);
+    sphere_ptr->set_material(red_ptr);
+    add_object(sphere_ptr);
+
+    Triangle* tri_ptr = new Triangle(Vector3D(1.5, -0.5, 1.8), Vector3D(7.5, -0.5, -9.00), Vector3D(2.35, 5.8, 1.4));
+    tri_ptr->set_material(green_ptr);
+    add_object(tri_ptr);
+
+    Plane* plane_ptr = new Plane(Vector3D(0, -0.5, 0), Vector3D(0, 1, 0));
+    plane_ptr->set_material(yellow_ptr);
+    add_object(plane_ptr);
+}
+
+
+
+void World::cow_mesh_build(void){
+    float light_radiance = 4.0; 
+
+    // View Plane
+    vp = ViewPlane(100, 100, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(1, 1, 1));
+    add_light(point_ptr);
+
+    // Camera
+    // // Camera: Pinhole
+    // Pinhole* pinhole_ptr = new Pinhole();
+    // pinhole_ptr->up = Vector3D(0, -1, 0);
+    // Vector3D eye1(0, -10, 0);
+    // pinhole_ptr->eye = eye1;
+    // Vector3D lookat1(0, 0, 0);
+    // pinhole_ptr->lookat = lookat1;
+    // float distance1 = 100;
+    // pinhole_ptr->distance = distance1;
+    // pinhole_ptr->compute_uvw();
+    // pinhole_ptr->zoom = 1;
+    // this->camera_ptr = pinhole_ptr;
+
+    // Camera: Orthographic
+    Orthographic* orthographic_ptr = new Orthographic();
+    Vector3D eye1(0, 0, 2);
+    orthographic_ptr->eye = eye1;
+    Vector3D lookat1(0, 0, -1);
+    orthographic_ptr->lookat = lookat1;
+    float distance1 = 2;
+    orthographic_ptr->distance = distance1;
+    orthographic_ptr->up = Vector3D(0, -1, 0);
+    orthographic_ptr->zoom = 15;
+    orthographic_ptr->compute_uvw();
+    this->camera_ptr = orthographic_ptr;
+
+    //Phong* yellow_phong_ptr = new Phong(0.25, 0.75, 0.5, 3.0, YELLOW);
+
+    // Sphere *sphere_ptr = new Sphere(Vector3D(0, 0, 0), 1.0);
+    // Matte* red_ptr = new Matte(0.25, 0.75, RED);
     // sphere_ptr->set_material(red_ptr);
     // add_object(sphere_ptr);
 
-    // //ORTHO SPHERES
-    // sphere_ptr = new Sphere(Vector3D(10, 0, 0), 1);
-    // sphere_ptr->set_material(blue_ptr->clone());
-    // add_object(sphere_ptr);
-
-    // sphere_ptr = new Sphere(Vector3D(0, 10, 0), 1);
-    // sphere_ptr->set_material(blue_ptr);
-    // add_object(sphere_ptr);
-
-    // sphere_ptr = new Sphere(Vector3D(0, 0, 10), 1);
-    // sphere_ptr->set_material(blue_ptr->clone());
-    // add_object(sphere_ptr);
-
-    // sphere_ptr = new Sphere(Vector3D(0, 0, 0), 1);
-    // sphere_ptr->set_material(blue_ptr->clone());
-    // add_object(sphere_ptr);
-
-    // // Triangle
-    // Triangle* tri_ptr = new Triangle(Vector3D(0, 2, 3), Vector3D(2,3,4), Vector3D(3,4,5));
+    // Triangle* tri_ptr = new Triangle(Vector3D(1.5, -0.5, 1.8), Vector3D(7.5, -0.5, -9.00), Vector3D(2.35, 5.8, 1.4));
     // tri_ptr->set_material(green_ptr);
     // add_object(tri_ptr);
+
+    // Plane* plane_ptr = new Plane(Vector3D(0, -0.5, 0), Vector3D(0, 1, 0));
+    // plane_ptr->set_material(yellow_ptr);
+    // add_object(plane_ptr);
+
+    TriangleMesh* mesh = new TriangleMesh("cow.obj");
+    Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
+    mesh->set_material(blue_ptr);
+    add_object(mesh);
+}
+
+
+
+void World::cow_mesh_bvh_build(void){
+    float light_radiance = 4.0; 
+
+    // View Plane
+    vp = ViewPlane(100, 100, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(1, 1, 1));
+    add_light(point_ptr);
+
+    // Camera
+    // // Camera: Pinhole
+    // Pinhole* pinhole_ptr = new Pinhole();
+    // pinhole_ptr->up = Vector3D(0, -1, 0);
+    // Vector3D eye1(0, -10, 0);
+    // pinhole_ptr->eye = eye1;
+    // Vector3D lookat1(0, 0, 0);
+    // pinhole_ptr->lookat = lookat1;
+    // float distance1 = 100;
+    // pinhole_ptr->distance = distance1;
+    // pinhole_ptr->compute_uvw();
+    // pinhole_ptr->zoom = 1;
+    // this->camera_ptr = pinhole_ptr;
+
+    // Camera: Orthographic
+    Orthographic* orthographic_ptr = new Orthographic();
+    Vector3D eye1(0, 0, 2);
+    orthographic_ptr->eye = eye1;
+    Vector3D lookat1(0, 0, -1);
+    orthographic_ptr->lookat = lookat1;
+    float distance1 = 2;
+    orthographic_ptr->distance = distance1;
+    orthographic_ptr->up = Vector3D(0, -1, 0);
+    orthographic_ptr->zoom = 15;
+    orthographic_ptr->compute_uvw();
+    this->camera_ptr = orthographic_ptr;
+
+    //Phong* yellow_phong_ptr = new Phong(0.25, 0.75, 0.5, 3.0, YELLOW);
+
+    // Sphere *sphere_ptr = new Sphere(Vector3D(0, 0, 0), 1.0);
+    // Matte* red_ptr = new Matte(0.25, 0.75, RED);
+    // sphere_ptr->set_material(red_ptr);
+    // add_object(sphere_ptr);
+
+    vector<GeometricObject*> bvh_objects;
+
+    Triangle* tri_ptr = new Triangle(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 10.0, 0.0), Vector3D(10, 10, 0));
+    Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
+    tri_ptr->set_material(green_ptr);
+    bvh_objects.push_back(tri_ptr);
+
+    Plane* plane_ptr = new Plane(Vector3D(0, 0.0, 0), Vector3D(0.1, 0.1, 0));
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    plane_ptr->set_material(yellow_ptr);
+    bvh_objects.push_back(plane_ptr);
+
+    TriangleMesh* mesh = new TriangleMesh("cow.obj");
+    Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
+    mesh->set_material(blue_ptr);
+    bvh_objects.push_back(mesh);
+
+
+    BVH* bvh = new BVH(bvh_objects, bvh_objects.size(), 0);
+    add_object(bvh);
+}
+
+
+void World::shadow_bvh_build(void){
+    float light_radiance = 4.0;
+
+    // View Plane
+    vp = ViewPlane(1000, 1000, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    // Directional* directional_ptr = new Directional(light_radiance, WHITE, Vector3D(1, 1, 2));
+    // add_light(directional_ptr);
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(12, 15, 30));
+    add_light(point_ptr);
+
+    // Camera
+    // Camera: Pinhole
+    Pinhole* pinhole_ptr = new Pinhole();
+    pinhole_ptr->up = Vector3D(0, -1, 0);
+    pinhole_ptr->zoom = 0.5;
+    Vector3D eye1(2, 2.5, 15);
+    pinhole_ptr->eye = eye1;
+    Vector3D lookat1(0 + 3, 2.5, 0);
+    pinhole_ptr->lookat = lookat1;
+    float distance1 = 700;
+    pinhole_ptr->distance = distance1;
+    pinhole_ptr->compute_uvw();
+    this->camera_ptr = pinhole_ptr;
+
+    // Materials
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    Matte* red_ptr = new Matte(0.25, 0.75, RED);
+    Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
+
+    // BVH Objects
+    vector<GeometricObject*> bvh_objects;
+
+    // Objects
+    Sphere* sphere_ptr = new Sphere(Vector3D(0.0, 2.4, 0), 1.5);
+    sphere_ptr->set_material(red_ptr);
+    bvh_objects.push_back(sphere_ptr);
+
+    Triangle* tri_ptr = new Triangle(Vector3D(1.5, -0.5, 1.8), Vector3D(7.5, -0.5, -9.00), Vector3D(2.35, 5.8, 1.4));
+    tri_ptr->set_material(green_ptr);
+    bvh_objects.push_back(tri_ptr);
+
+    Plane* plane_ptr = new Plane(Vector3D(0, -0.5, 0), Vector3D(0, 1, 0));
+    plane_ptr->set_material(yellow_ptr);
+    bvh_objects.push_back(plane_ptr);
+
+    BVH* bvh = new BVH(bvh_objects, bvh_objects.size(), 0);
+    add_object(bvh);
+}
+
+
+void World::spheres_bvh_build(void){
+    float light_radiance = 4.0;
+
+    // View Plane
+    vp = ViewPlane(1000, 1000, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    // Directional* directional_ptr = new Directional(light_radiance, WHITE, Vector3D(1, 1, 2));
+    // add_light(directional_ptr);
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(12, 15, 30));
+    add_light(point_ptr);
+
+    // Camera
+    // Camera: Pinhole
+    Pinhole* pinhole_ptr = new Pinhole();
+    pinhole_ptr->up = Vector3D(0, -1, 0);
+    pinhole_ptr->zoom = 0.5;
+    Vector3D eye1(2, 2.5, 15);
+    pinhole_ptr->eye = eye1;
+    Vector3D lookat1(0 + 3, 2.5, 0);
+    pinhole_ptr->lookat = lookat1;
+    float distance1 = 700;
+    pinhole_ptr->distance = distance1;
+    pinhole_ptr->compute_uvw();
+    this->camera_ptr = pinhole_ptr;
+
+    // Materials
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    Phong* red_ptr = new Phong(0.25, 0.75, 0.5, 3.0, RED);
+    Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
+
+    // BVH Objects
+    vector<GeometricObject*> bvh_objects;
+
+    // Objects
+
+    int num = 22;
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num; j++){
+            for (int k = 0; k < num; k++){
+                Sphere* sphere_ptr = new Sphere(Vector3D(i, j, -2*k), 0.3);
+                sphere_ptr->set_material(red_ptr->clone());
+                bvh_objects.push_back(sphere_ptr);
+            }
+        }
+    }
+
+    Sphere* sphere_ptr = new Sphere(Vector3D(0.0, 2.4, 0), 1.5);
+    sphere_ptr->set_material(red_ptr);
+    bvh_objects.push_back(sphere_ptr);
+
+    Triangle* tri_ptr = new Triangle(Vector3D(1.5, -0.5, 1.8), Vector3D(7.5, -0.5, -9.00), Vector3D(2.35, 5.8, 1.4));
+    tri_ptr->set_material(green_ptr);
+    bvh_objects.push_back(tri_ptr);
+
+    Plane* plane_ptr = new Plane(Vector3D(0, -0.5, 0), Vector3D(0, 1, 0));
+    plane_ptr->set_material(yellow_ptr);
+    bvh_objects.push_back(plane_ptr);
+
+    BVH* bvh = new BVH(bvh_objects, bvh_objects.size(), 0);
+    add_object(bvh);
+}
+
+
+void World::cow_mesh_bvh_2_build(void){
+    float light_radiance = 4.0; 
+
+    // View Plane
+    vp = ViewPlane(300, 300, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(1, 1, 1));
+    add_light(point_ptr);
+
+    //Camera
+    // Camera: Pinhole
+    Pinhole* pinhole_ptr = new Pinhole();
+    pinhole_ptr->up = Vector3D(0, -1, 0);
+    Vector3D eye1(0, 0, 2);
+    pinhole_ptr->eye = eye1;
+    Vector3D lookat1(0, 0, -1);
+    pinhole_ptr->lookat = lookat1;
+    float distance1 = 100;
+    pinhole_ptr->distance = distance1;
+    pinhole_ptr->compute_uvw();
+    pinhole_ptr->zoom = 1;
+    this->camera_ptr = pinhole_ptr;
+
+    // // Camera: Orthographic
+    // Orthographic* orthographic_ptr = new Orthographic();
+    // Vector3D eye1(0, 0, 2);
+    // orthographic_ptr->eye = eye1;
+    // Vector3D lookat1(0, 0, -1);
+    // orthographic_ptr->lookat = lookat1;
+    // float distance1 = 2;
+    // orthographic_ptr->distance = distance1;
+    // orthographic_ptr->up = Vector3D(0, -1, 0);
+    // orthographic_ptr->zoom = 15;
+    // orthographic_ptr->compute_uvw();
+    // this->camera_ptr = orthographic_ptr;
+
+    //Phong* yellow_phong_ptr = new Phong(0.25, 0.75, 0.5, 3.0, YELLOW);
+
+    // Sphere *sphere_ptr = new Sphere(Vector3D(0, 0, 0), 1.0);
+    // Matte* red_ptr = new Matte(0.25, 0.75, RED);
+    // sphere_ptr->set_material(red_ptr);
+    // add_object(sphere_ptr);
+
+    vector<GeometricObject*> bvh_objects;
+
+    // Triangle* tri_ptr = new Triangle(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 10.0, 0.0), Vector3D(10, 10, 0));
+    // Matte* green_ptr = new Matte(0.25, 0.75, GREEN);
+    // tri_ptr->set_material(green_ptr);
+    // bvh_objects.push_back(tri_ptr);
+
+    Plane* plane_ptr = new Plane(Vector3D(0, -0.6, 0), Vector3D(0.0, 0.1, 0.02));
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    plane_ptr->set_material(yellow_ptr);
+    bvh_objects.push_back(plane_ptr);
+
+    TriangleMesh* mesh = new TriangleMesh("cow.obj");
+    //Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
+    Phong* blue_ptr = new Phong(0.25, 0.75, 0.5, 3.0, BLUE);
+    mesh->set_material(blue_ptr);
+    bvh_objects.push_back(mesh);
+
+
+    BVH* bvh = new BVH(bvh_objects, bvh_objects.size(), 0);
+    add_object(bvh);
+}
+
+void World::cow_mesh_no_bvh_2_build(void){
+    float light_radiance = 4.0; 
+
+    // View Plane
+    vp = ViewPlane(300, 300, 1.0, 1.0);
+
+    // Ambient Light
+    ambient_ptr = new Ambient(light_radiance * 0.5, WHITE);
+
+    // Background color
+    background_color = GREEN / 10;
+
+    // Tracer
+    tracer_ptr = new RayCast(this);
+
+    // Lights
+    Point* point_ptr = new Point(light_radiance * 1.0, WHITE, Vector3D(1, 1, 1));
+    add_light(point_ptr);
+
+    //Camera
+    // Camera: Pinhole
+    Pinhole* pinhole_ptr = new Pinhole();
+    pinhole_ptr->up = Vector3D(0, -1, 0);
+    Vector3D eye1(0, 0, 2);
+    pinhole_ptr->eye = eye1;
+    Vector3D lookat1(0, 0, -1);
+    pinhole_ptr->lookat = lookat1;
+    float distance1 = 100;
+    pinhole_ptr->distance = distance1;
+    pinhole_ptr->compute_uvw();
+    pinhole_ptr->zoom = 1;
+    this->camera_ptr = pinhole_ptr;
+
+    Plane* plane_ptr = new Plane(Vector3D(0, -0.6, 0), Vector3D(0.0, 0.1, 0.02));
+    Matte* yellow_ptr = new Matte(0.25, 0.75, YELLOW);
+    plane_ptr->set_material(yellow_ptr);
+    add_object(plane_ptr);
+
+    TriangleMesh* mesh = new TriangleMesh("cow.obj");
+    //Matte* blue_ptr = new Matte(0.25, 0.75, BLUE);
+    Phong* blue_ptr = new Phong(0.25, 0.75, 0.5, 3.0, BLUE);
+    mesh->set_material(blue_ptr);
+    add_object(mesh);
+}
+
+
+void World::build(void){
+    //cow_mesh_bvh_build();
+    //shadow_bvh_build();
+    //spheres_bvh_build();
+    //cow_mesh_bvh_2_build();
+    //cow_mesh_no_bvh_2_build();
+    spheres_bvh_build();
 }

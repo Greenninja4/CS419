@@ -14,7 +14,7 @@ class Matrix{
 
         // Operators
         Matrix operator* (const Matrix& matrix) const;  // Matrix multiplication
-        Matrix operator/ (const double d);              // Scalar division
+        Matrix operator/ (const double& d);              // Scalar division
 
         // Functions
         void set_to_identity(void); // Set it to the identity matrix

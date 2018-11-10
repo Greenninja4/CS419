@@ -15,7 +15,7 @@ class Directional : public Light{
 
         // Big 6
         Directional(void);
-        Directional(const float&  ls, const Vector3D& color, const Vector3D& dir);
+        Directional(const double&  ls, const Vector3D& color, const Vector3D& dir);
         Directional(const Directional& directional);
         Directional& operator= (const Directional& rhs);
         virtual ~Directional(void);
@@ -24,6 +24,8 @@ class Directional : public Light{
         // Functions
         virtual Vector3D get_direction(ShadeRec& sr);
         virtual Vector3D L(ShadeRec& sr);
+        virtual bool casts_shadow(void) const;
+        virtual bool in_shadow(const Ray& ray, const ShadeRec& sr) const;
 };
 
 #endif

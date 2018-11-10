@@ -12,7 +12,7 @@ class Orthographic : public Camera {
         float zoom;
 
         Orthographic(void);
-        Orthographic(Vector3D& eye, Vector3D& lookat, Vector3D& up, double roll, float exposure_time, float distance, float zoom);
+        Orthographic(Vector3D& eye, Vector3D& lookat, Vector3D& up, double& roll, float exposure_time, float distance, float zoom);
         Orthographic(const Orthographic& orthographic);
         virtual ~Orthographic();
         Orthographic& operator= (const Orthographic& rhs);

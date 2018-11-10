@@ -12,7 +12,7 @@ class Pinhole : public Camera {
         float zoom;
 
         Pinhole(void);
-        Pinhole(Vector3D& eye, Vector3D& lookat, Vector3D& up, double roll, float exposure_time, float distance, float zoom);
+        Pinhole(Vector3D& eye, Vector3D& lookat, Vector3D& up, double& roll, float exposure_time, float distance, float zoom);
         Pinhole(const Pinhole& pinhole);
         virtual ~Pinhole();
         Pinhole& operator= (const Pinhole& rhs);

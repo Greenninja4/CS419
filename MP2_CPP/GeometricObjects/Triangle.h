@@ -8,6 +8,7 @@ class Triangle : public GeometricObject{
         // Variables
         Vector3D p1, p2, p3;    // Points
         Vector3D n;             // Normal
+        BBox bbox;              // Bounding box
 
         // Big 6
         Triangle(void);
@@ -18,9 +19,12 @@ class Triangle : public GeometricObject{
         virtual Triangle* clone(void) const;
 
         // Functions
-		virtual bool hit(const Ray& ray, double& t, ShadeRec& s) const;
+		virtual bool hit(const Ray& ray, double& tmin, ShadeRec& s) const;
         // virtual BBox get_bounding_box(void);
         void compute_normal(void);
+        virtual bool shadow_hit(const Ray& ray, double& tmin) const;
+        virtual BBox get_bounding_box(void);
+        virtual void set_bounding_box(void);
 };
 
 #endif

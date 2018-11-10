@@ -13,7 +13,7 @@ class GlossySpecular : public BRDF{
 
         // Big 6
         GlossySpecular(void);
-        GlossySpecular(const float& k_s, const Vector3D& color, const float& exp);
+        GlossySpecular(const double& k_s, const Vector3D& color, const double& exp);
         GlossySpecular(const GlossySpecular& glossy_specular);
         virtual ~GlossySpecular(void);
         GlossySpecular& operator= (const GlossySpecular& rhs);
@@ -21,7 +21,7 @@ class GlossySpecular : public BRDF{
 
         // Functions
         virtual Vector3D f(const ShadeRec& sr, const Vector3D& wo, const Vector3D& wi) const;
-        // virtual Vector3D sample_f(const ShadeRec& sr, const Vector3D& wo, Vector3D& wi, float& pdf) const;
+        // virtual Vector3D sample_f(const ShadeRec& sr, const Vector3D& wo, Vector3D& wi, double pdf) const;
         virtual Vector3D rho(const ShadeRec& sr, Vector3D& wo) const;
 };
 

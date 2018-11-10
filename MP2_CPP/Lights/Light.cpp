@@ -13,3 +13,9 @@ Light::~Light(void){}
 Vector3D Light::L(ShadeRec& sr){
     return BLACK;
 }
+bool Light::casts_shadow(void) const {
+    return false;
+};
+bool Light::in_shadow(const Ray& ray, const ShadeRec& sr) const{
+    return false;
+}

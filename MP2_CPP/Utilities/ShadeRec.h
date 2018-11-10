@@ -24,6 +24,7 @@ class ShadeRec{
         // Big 6
         ShadeRec(const World& world);
         ShadeRec(const ShadeRec& sr);
+        ShadeRec& operator= (const ShadeRec& rhs);
         ~ShadeRec(void);
 };
 

@@ -7,7 +7,7 @@ Directional::Directional(void):
     ls(1.0), 
     color(WHITE), 
     dir(0, 1, 0) {}
-Directional::Directional(const float&  ls, const Vector3D& color, const Vector3D& dir): 
+Directional::Directional(const double&  ls, const Vector3D& color, const Vector3D& dir): 
     Light(), 
     ls(ls), 
     color(color), 
@@ -40,4 +40,10 @@ Vector3D Directional::get_direction(ShadeRec& sr){
 }
 Vector3D Directional::L(ShadeRec& sr){
     return ls * color;
+}
+bool Directional::casts_shadow(void) const {
+    return true;
+};
+bool Directional::in_shadow(const Ray& ray, const ShadeRec& sr) const{
+    return false;
 }

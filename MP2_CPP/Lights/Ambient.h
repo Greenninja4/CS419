@@ -11,7 +11,7 @@ class Ambient : public Light{
 
         // Big 6
         Ambient(void);
-        Ambient(const float& ls, const Vector3D& color);
+        Ambient(const double& ls, const Vector3D& color);
         Ambient(const Ambient& ambient);
         Ambient& operator= (const Ambient& rhs);
         virtual ~Ambient(void);

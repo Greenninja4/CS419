@@ -8,7 +8,7 @@ GlossySpecular::GlossySpecular(void):
     k_s(0.0), 
     color(WHITE), 
     exp(1.0) {}
-GlossySpecular::GlossySpecular(const float& k_s, const Vector3D& color, const float& exp): 
+GlossySpecular::GlossySpecular(const double& k_s, const Vector3D& color, const double& exp): 
     BRDF(), 
     k_s(k_s), 
     color(color), 

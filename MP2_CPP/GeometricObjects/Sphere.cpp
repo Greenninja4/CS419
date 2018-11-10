@@ -6,15 +6,21 @@
 Sphere::Sphere(void): 
     GeometricObject(), 
     center(0.0, 0.0, 0.0), 
-    radius(1.0) {}
+    radius(1.0) {
+    set_bounding_box();
+}
 Sphere::Sphere(const Vector3D& center, const double& radius): 
     GeometricObject(), 
     center(center),
-    radius(radius) {}
+    radius(radius) {
+    set_bounding_box();
+}
 Sphere::Sphere(const Sphere& sphere): 
     GeometricObject(sphere), 
     center(sphere.center), 
-    radius(sphere.radius) {}
+    radius(sphere.radius) {
+    set_bounding_box();
+}
 Sphere& Sphere::operator= (const Sphere& rhs){
     if (this == &rhs){
         return *this;
@@ -71,4 +77,41 @@ bool Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
         }
     }
     return false;
+}
+bool Sphere::shadow_hit(const Ray& ray, double& tmin) const{
+    double t;
+    Vector3D temp = ray.o - center;
+    double a = ray.d * ray.d;
+    double b = 2.0 * temp * ray.d;
+    double c = temp * temp - radius * radius;
+    double disc = b * b - 4.0 * a * c;
+
+    if (disc < 0.0){
+        return false;
+    } else {
+        double e = sqrt(disc);
+        double denom = 2.0 * a;
+
+        // Smaller root
+        t = (-b - e) / denom;
+        if (t > KEPSILON){
+            tmin = t;
+            return true;
+        }
+
+        // Larger root
+        t = (-b + e) / denom;
+        if (t > KEPSILON){
+            tmin = t;
+            return true;
+        }
+    }
+    return false;
+}
+
+BBox Sphere::get_bounding_box(void){
+    return bbox;
+}
+void Sphere::set_bounding_box(void){
+    bbox = BBox(Vector3D(center - radius), Vector3D(center + radius));
 }

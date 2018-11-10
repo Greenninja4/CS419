@@ -7,7 +7,7 @@ Pinhole::Pinhole(void):
     Camera(), 
     distance(500), 
     zoom(1.0) {}
-Pinhole::Pinhole(Vector3D& eye, Vector3D& lookat, Vector3D& up, double roll, float exposure_time, float distance, float zoom): 
+Pinhole::Pinhole(Vector3D& eye, Vector3D& lookat, Vector3D& up, double& roll, float exposure_time, float distance, float zoom): 
     Camera(), 
     distance(distance), 
     zoom(zoom) {

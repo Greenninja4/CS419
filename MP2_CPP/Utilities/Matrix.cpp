@@ -46,7 +46,7 @@ Matrix Matrix::operator* (const Matrix& mat) const{
     }
     return product;
 }
-Matrix Matrix::operator/ (double d){
+Matrix Matrix::operator/ (const double& d){
     for (int x = 0; x < 4; x++){
         for (int y = 0; y < 4; y++){
             m[x][y] = m[x][y] / d;

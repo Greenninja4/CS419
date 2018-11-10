@@ -19,12 +19,24 @@ Directional
 Ambient
 Point
 GlossySpecular (Vector& wi in sample_f is not const?, Also implement samplers, rho is not const Vector&)
+Compound
+
+Point, Direction (shadow hit not used, dummy ShadeRec used)
+GeometricObjects (shadow_hit() not implemented)
+Lights (set_shadows(bool) to control shadow possibilities)
+
+
+===========CAR TODO======================
+Bounding box in object constructors
+bvh
+
 
 
 ======================POSSIBLY IMPLEMENT============================
 Samplers
 Thin Lens Camera (requires sampling...)
 Shadow Hit -> slighlty optimized b/c it stops as soon as it hits something
+Emmissive
 
 
 ========================MP SPECIFICATIONS===========================
@@ -64,6 +76,9 @@ MP2:
 --Order of big 5/6 (def, reg, copy, destr, ass, clone)
 --Include statements order
 --Make everything getters and setter? Or is that too slow?
+--When to use doubles and floats
+--Should primitives be passed as const & ? or just regularly?
+--Are structs & typedef better than Object Oriented Classes?
 
 Default Constructor
 Regular Constructor

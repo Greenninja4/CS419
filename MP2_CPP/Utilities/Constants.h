@@ -13,10 +13,8 @@
 #define MAGENTA Vector3D(0, 1, 1)
 #define YELLOW Vector3D(1, 1, 0)
 
-#define KEPSILON 0.00001
+#define KEPSILON 0.0000000001
 #define KHUGEVALUE 99999999999999
-#define kEpsilon 0.00001
-#define kHugeValue 99999999999999
 
 #define PI 3.1415926535897
 #define INV_PI 0.31830988618

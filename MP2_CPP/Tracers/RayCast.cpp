@@ -10,7 +10,6 @@ RayCast::RayCast(World* world_ptr):
     Tracer(world_ptr) {}
 RayCast::~RayCast(void){}
 Vector3D RayCast::trace_ray(const Ray& ray) const{
-    //cout << "RayCast: " << ray.o.x << ", " << ray.o.y << ", " << ray.o.z << endl;
     ShadeRec sr(world_ptr->hit_objects(ray));
     if (sr.hit_an_object){
         sr.ray = ray;

@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "GeometricObject.h"
 #include "Camera.h"
+#include "BVH.h"
 
 using namespace std;
 
@@ -53,6 +54,16 @@ class World{
         Vector3D clamp_to_color(const Vector3D& color) const;
         ShadeRec hit_objects(const Ray& ray);
         void build(void);
+
+        // Build Functions
+        void orthographic_build(void);
+        void shadow_build(void);
+        void shadow_bvh_build(void);
+        void cow_mesh_build(void);
+        void cow_mesh_bvh_build(void);
+        void spheres_bvh_build(void);
+        void cow_mesh_bvh_2_build(void);
+        void cow_mesh_no_bvh_2_build(void);
 };
 
 #endif

@@ -6,7 +6,7 @@ Phong::Phong(void):
     ambient_brdf(new Lambertian), 
     diffuse_brdf(new Lambertian),
     specular_brdf(new GlossySpecular) {}
-Phong::Phong(const float& k_a, const float& k_d, const float& k_s, const float& exp, const Vector3D& color): 
+Phong::Phong(const double& k_a, const double &k_d, const double& k_s, const double& exp, const Vector3D& color): 
     Material(), 
     ambient_brdf(new Lambertian(k_a, color)), 
     diffuse_brdf(new Lambertian(k_d, color)), 
@@ -82,6 +82,7 @@ Material* Phong::clone(void) const{
     return (new Phong(*this));
 }
 
+// Functions
 Vector3D Phong::shade(ShadeRec& sr){
     Vector3D wo = -sr.ray.d;
     Vector3D L = ambient_brdf->rho(sr, wo) % sr.world.ambient_ptr->L(sr);
@@ -92,8 +93,17 @@ Vector3D Phong::shade(ShadeRec& sr){
         double ndotwi = sr.normal * wi;
 
         if (ndotwi > 0.0){
-            L = L + (diffuse_brdf->f(sr, wo, wi) + specular_brdf->f(sr, wo, wi))
+
+            bool in_shadow = false;
+            if (sr.world.lights[j]->casts_shadow()){
+                Ray shadow_ray(sr.hit_point, wi);
+                in_shadow = sr.world.lights[j]->in_shadow(shadow_ray, sr);
+            }
+
+            if (!in_shadow){
+                L = L + (diffuse_brdf->f(sr, wo, wi) + specular_brdf->f(sr, wo, wi))
                      % (sr.world.lights[j]->L(sr)) * ndotwi;
+            }
         }
     }
     return L;

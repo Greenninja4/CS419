@@ -14,7 +14,7 @@ class Phong : public Material{
         
         // Big 6
         Phong(void);
-        Phong(const float& k_a, const float& k_d, const float& k_s, const float& exp, const Vector3D& color);
+        Phong(const double& k_a, const double& k_d, const double& k_s, const double& exp, const Vector3D& color);
         Phong(const Phong& phong);
         Phong& operator= (const Phong& rhs);
         ~Phong(void);

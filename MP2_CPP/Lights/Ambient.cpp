@@ -6,7 +6,7 @@ Ambient::Ambient(void):
     Light(), 
     ls(1.0), 
     color(WHITE) {}
-Ambient::Ambient(const float& ls, const Vector3D& color): 
+Ambient::Ambient(const double& ls, const Vector3D& color): 
     Light(), 
     ls(ls), 
     color(color) {}

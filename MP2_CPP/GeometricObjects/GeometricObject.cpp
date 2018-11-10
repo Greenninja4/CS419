@@ -38,10 +38,10 @@ Material* GeometricObject::get_material(void) const{
 void GeometricObject::set_material(Material* material_ptr){
     this->material_ptr = material_ptr;
 }
-// BBox GeometricObject::get_bounding_box(void){
-//     return BBox();
-// }
-// void GeometricObject::set_bounding_box(void){}
+BBox GeometricObject::get_bounding_box(void){
+    return BBox();
+}
+void GeometricObject::set_bounding_box(void){}
 // Vector3D GeometricObject::get_normal(void) const{
 //     return Vector3D();
 // }
@@ -57,3 +57,6 @@ void GeometricObject::set_material(Material* material_ptr){
 // double pdf(const ShadeRec& sr){
 //     return 0.0;
 // }
+bool GeometricObject::shadow_hit(const Ray& ray, double& tmin) const{
+    return false;
+}

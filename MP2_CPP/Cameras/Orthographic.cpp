@@ -7,7 +7,7 @@ Orthographic::Orthographic(void):
     Camera(), 
     distance(500), 
     zoom(1.0) {}
-Orthographic::Orthographic(Vector3D& eye, Vector3D& lookat, Vector3D& up, double roll, float exposure_time, float distance, float zoom): 
+Orthographic::Orthographic(Vector3D& eye, Vector3D& lookat, Vector3D& up, double& roll, float exposure_time, float distance, float zoom): 
     Camera(), 
     distance(distance), 
     zoom(zoom) {
