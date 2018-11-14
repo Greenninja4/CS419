@@ -22,6 +22,7 @@ class World{
         vector<Light*> lights;              // Lights
         vector<GeometricObject*> objects;   // Objects
         Camera* camera_ptr;                 // Camera
+        unsigned long long int num_rays = 0;// Number of rays traced
 
         // Big 6
         World(void);
@@ -64,6 +65,8 @@ class World{
         void spheres_bvh_build(void);
         void cow_mesh_bvh_2_build(void);
         void cow_mesh_no_bvh_2_build(void);
+        void mirror_build(void);
+        void transparent_build(void);
 };
 
 #endif

@@ -39,8 +39,8 @@ BVH::BVH(GeometricObject* left, GeometricObject* right){
     objs.push_back(left);
     objs.push_back(right);
     bbox = surround(objs);
-    cout << "BBOX: " << bbox.p0.x << ", " << bbox.p0.y << ", " << bbox.p0.z << ", ";
-    cout <<             bbox.p1.x << ", " << bbox.p1.y << ", " << bbox.p1.z << endl;
+    // cout << "BBOX: " << bbox.p0.x << ", " << bbox.p0.y << ", " << bbox.p0.z << ", ";
+    // cout <<             bbox.p1.x << ", " << bbox.p1.y << ", " << bbox.p1.z << endl;
 }
 // Recursive Case
 BVH::BVH(const vector<GeometricObject*>& objects, int num_objects, int axis){

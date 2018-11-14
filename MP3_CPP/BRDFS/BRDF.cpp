@@ -11,7 +11,7 @@ BRDF::~BRDF(void){}
 Vector3D BRDF::f(const ShadeRec& sr, const Vector3D& wo, const Vector3D& wi) const {
     return BLACK;
 }
-Vector3D BRDF::sample_f(const ShadeRec& sr, const Vector3D& wo, const Vector3D& wi) const {
+Vector3D BRDF::sample_f(const ShadeRec& sr, const Vector3D& wo, Vector3D& wi) const {
     return BLACK;
 }
 Vector3D BRDF::rho(const ShadeRec& sr, Vector3D& wo) const {
