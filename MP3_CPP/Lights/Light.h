@@ -23,6 +23,8 @@ class Light{
         virtual Vector3D L(ShadeRec& sr);
         virtual bool casts_shadow(void) const;
         virtual bool in_shadow(const Ray& ray, const ShadeRec& sr) const;
+        virtual float G(const ShadeRec& sr) const;
+        virtual float pdf(const ShadeRec& sr) const;
 };
 
 #endif

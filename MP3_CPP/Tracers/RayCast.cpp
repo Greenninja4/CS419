@@ -19,8 +19,12 @@ Vector3D RayCast::trace_ray(const Ray& ray) const{
     }
 }
 Vector3D RayCast::trace_ray(const Ray ray, const int depth) const{
+    if (depth > world_ptr->vp.max_depth){
+        return BLACK;
+    }
     ShadeRec sr(world_ptr->hit_objects(ray));
     if (sr.hit_an_object){
+        sr.depth = depth;
         sr.ray = ray;
         return sr.material_ptr->shade(sr);
     } else {

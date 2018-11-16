@@ -67,6 +67,7 @@ class World{
         void cow_mesh_no_bvh_2_build(void);
         void mirror_build(void);
         void transparent_build(void);
+        void area_light_build(void);
 };
 
 #endif

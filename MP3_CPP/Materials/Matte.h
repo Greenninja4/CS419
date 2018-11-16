@@ -17,6 +17,7 @@ class Matte : public Material{
         virtual Material* clone(void) const;
 
         virtual Vector3D shade(ShadeRec& sr);
+        virtual Vector3D area_light_shade(ShadeRec& sr);
 };
 
 #endif
