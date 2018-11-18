@@ -68,6 +68,7 @@ class World{
         void mirror_build(void);
         void transparent_build(void);
         void area_light_build(void);
+        void face_mesh_bvh_build(void);
 };
 
 #endif
