@@ -1,6 +1,6 @@
 EXE = tracer
 CXX = clang++-6.0
-CXXFLAGS= -Wall -Werror -I. -I./BRDFS -I./BTDFS -I./Cameras -I./GeometricObjects -I./Lights -I./Materials -I./Samplers -I./Tracers -I./Utilities -I./World
+CXXFLAGS= -Wall -Werror -I. -I./BRDFS -I./BTDFS -I./Cameras -I./GeometricObjects -I./Lights -I./Mappings -I./Materials -I./Samplers -I./Textures -I./Tracers -I./Utilities -I./World
 SRC = $(wildcard *.cpp) \
       $(wildcard */*.cpp)
 OBJ = $(SRC:.cpp=.o)

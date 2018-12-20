@@ -9,12 +9,13 @@ class Instance : public GeometricObject {
         //Variables
         GeometricObject* object_ptr;        // Original Object
         Matrix inv_matrix;                  // Inverse Transformation Matrix
-        bool transform_the_texture;         // Should we trasform the texture?
+        Matrix forward_matrix;              // Forward Transformation Matrix
         BBox bbox;
+        bool transform_the_texture;         // Should we trasform the texture?
 
         // Big 6
         Instance(void);
-        Instance(const GeometricObject* object_ptr);
+        Instance(GeometricObject* object_ptr);
         Instance(const Instance& instance);
         Instance& operator= (const Instance& rhs);
         virtual ~Instance(void);
@@ -26,6 +27,12 @@ class Instance : public GeometricObject {
         void translate(const Vector3D& v);
         virtual BBox get_bounding_box(void);
         virtual void set_bounding_box(void);
+
+        // Updated functions
+        void scale(const Vector3D& s);
+        void rotate_x(const double theta);
+        void rotate_y(const double theta);
+        void rotate_z(const double theta);
 };
 
 #endif

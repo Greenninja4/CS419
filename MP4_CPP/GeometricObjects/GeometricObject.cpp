@@ -60,3 +60,7 @@ double GeometricObject::pdf(const ShadeRec& sr){
 bool GeometricObject::shadow_hit(const Ray& ray, double& tmin) const{
     return false;
 }
+
+bool GeometricObject::min_hit(const Ray& ray, double& tmin, ShadeRec& sr) const{
+    return false;
+}

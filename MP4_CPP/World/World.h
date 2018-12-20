@@ -55,6 +55,7 @@ class World{
         Vector3D clamp_to_color(const Vector3D& color) const;
         ShadeRec hit_objects(const Ray& ray);
         void build(void);
+        
 
         // Build Functions
         void orthographic_build(void);
@@ -69,6 +70,12 @@ class World{
         void transparent_build(void);
         void area_light_build(void);
         void face_mesh_bvh_build(void);
+        void fast_mesh_build(void);
+        void texture_build(void);
+        void checker_build(void);
+
+        // Animation Functions
+        void animate(void);
 };
 
 #endif

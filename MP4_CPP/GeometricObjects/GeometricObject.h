@@ -33,6 +33,7 @@ class GeometricObject{
 
         // Functions
 		virtual bool hit(const Ray& ray, double& tmin, ShadeRec& sr) const = 0; // Ray hits the object?
+        virtual bool min_hit(const Ray& ray, double& tmin, ShadeRec& sr) const; // For CSG Model Spheres
         // virtual void add_object(GeometricObject* object_ptr);                   // For compound objects... Not needed rn
         virtual Vector3D sample(void);                                          // For area lights
         virtual double pdf(const ShadeRec& sr);                                 // For area lights

@@ -1,6 +1,9 @@
 #ifndef __MATRIX__
 #define __MATRIX__
 
+#include <string>
+using namespace std;
+
 class Matrix{
     public:
         // Variables
@@ -18,6 +21,9 @@ class Matrix{
 
         // Functions
         void set_to_identity(void); // Set it to the identity matrix
+        void set_to_rot(float theta, string xyz);
+        void set_to_rot_inv(float theta, string xyz);
+        void set_to_scale(float scale);
 };
 
 #endif

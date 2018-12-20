@@ -24,6 +24,7 @@ class Sphere : public GeometricObject{
 
         // Functions
 		virtual bool hit(const Ray& ray, double& t, ShadeRec& s) const;
+        virtual bool min_hit(const Ray& ray, double& t, ShadeRec& s) const;
         virtual bool shadow_hit(const Ray& ray, double& tmin) const;
         virtual BBox get_bounding_box(void);
         virtual void set_bounding_box(void);

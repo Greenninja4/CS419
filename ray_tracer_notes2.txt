@@ -1,0 +1,43 @@
+Chapter 29
+--Texture
+----ConstantColor
+----ImageTexture
+--BRDF->SV_Lambertian
+--Material->SV_Matte
+--Mapping
+----RectangularMap, CylindricalMap, SphericalMap, LightProbeMap
+--MeshTriangle
+----FlatMeshTriangle
+------FaltUVMeshTriangle
+----SmoothMeshTriangle
+------SmoothUVMeshTriangle
+
+TODO=================
+SV_... ??? Other Materials / BRDFs?
+...Map ??? Other Mappings
+Instance -> forward_matrix?
+
+DONE=========================
+Image
+Texture
+SV_Lambertian
+SV_Matte
+Mapping
+SphericalMap
+RectangularMap
+ImageTexture
+
+NOTES============
+pg.648 -> ndotwo is included in SV_Matte's shade() function...? why?
+
+
+
+Bottom y-bins spread in x-z (more populated spreads slower)
+Top y-bins fall downward (more populated falls faster)
+
+
+To smooth out mesh.........
+Bin each vertex
+Slightly shift vertexes toward average of bin
+Shift bins randomly
+
