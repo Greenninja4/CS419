@@ -8,10 +8,10 @@ int main(void){
     auto start_time = std::chrono::system_clock::now();
 
     World w;
-    // w.build();
-    // w.render_scene();
+    w.build();
+    w.render_scene();
 
-    w.animate();
+    //w.animate();
 
     std::chrono::duration<double> elapsed_time = std::chrono::system_clock::now() - start_time;
     double execution_time = elapsed_time.count();

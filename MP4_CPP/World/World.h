@@ -73,6 +73,7 @@ class World{
         void fast_mesh_build(void);
         void texture_build(void);
         void checker_build(void);
+        void glass_face_build(void);
 
         // Animation Functions
         void animate(void);
